@@ -1,8 +1,9 @@
 import logging
 
+import semver
+
 from .clients import PieFedClient
 from .site import Site
-
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class PieFed:
         self.close()
 
     @property
-    def instance_version(self):
+    def instance_version(self) -> semver.Version:
         return self._client.instance_version
 
 
