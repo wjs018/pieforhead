@@ -8,10 +8,13 @@ from .exceptions import PieFedClientException
 from .utils import VERSION
 
 
+logger = logging.getLogger(__name__)
+
+
 class BaseClient:
     """Class that both synchronous and async clients inherit from."""
 
-    instance_url: str = ""
+    instance_url: str
     timeout: float = 5.0
     api_version: str = "alpha"
     headers: dict = {}
@@ -20,20 +23,24 @@ class BaseClient:
     current_password: str = ""
     _nodeinfo: dict = {}
     _instance_version: semver.Version = None
-    _logger: logging.Logger = None
 
     def __init__(
         self,
-        instance_url: str = "",
+        instance_url: str,
         timeout: float = 5.0,
         api_version: str = "alpha",
-        logger: logging.Logger = None,
     ):
+        """Constructor for base client class.
+
+        Args:
+            instance_url str: url of the piefed instance e.g. https://site.tld
+            timeout (float, optional): Timeout value for requests. Defaults to 5.0.
+            api_version (str, optional): Version of the PieFed API. Defaults to "alpha".
+        """
         self.instance_url = instance_url
         self.timeout = timeout
         self.api_version = api_version
         self.headers = {"User-Agent": f"pieforhead/{VERSION}", "Accept": "application/json"}
-        self._logger = logger or logging.getLogger(__name__)
 
 
 class PieFedClient(BaseClient):
@@ -43,13 +50,21 @@ class PieFedClient(BaseClient):
 
     def __init__(
         self,
-        instance_url: str = "",
-        timeout: float = 5,
+        instance_url: str,
+        timeout: float = 5.0,
         api_version: str = "alpha",
         existing_client: httpx.Client = None,
-        logger: logging.Logger = None,
     ):
-        super().__init__(instance_url=instance_url, timeout=timeout, api_version=api_version, logger=logger)
+        """Constructor for Synchronous client.
+
+        Args:
+            instance_url str: url of the piefed instance e.g. https://site.tld
+            timeout (float, optional): Timeout value for requests. Defaults to 5.0.
+            api_version (str, optional): Version of the PieFed API. Defaults to "alpha".
+            existing_client (httpx.Client, optional): Pass an httpx.Client object to reuse it (mainly used for tests).
+                Defaults to None.
+        """
+        super().__init__(instance_url=instance_url, timeout=timeout, api_version=api_version)
 
         base_url = f"{instance_url}/api/{api_version}/"
 
@@ -79,6 +94,8 @@ class PieFedClient(BaseClient):
 
         try:
             # Make the request
+            logger.debug(f"method={method}, endpoint={endpoint}, params={params}, data={data}")
+
             resp = self._client.request(
                 method=method,
                 url=endpoint,
@@ -95,6 +112,8 @@ class PieFedClient(BaseClient):
 
         except httpx.HTTPStatusError as e:
             # Server returned a bad status code, try to pull out the returned error message
+            logger.error(msg=str(e))
+
             message = f"{method} request to {endpoint} failed with status {resp.status_code}"
             try:
                 # A try...except inside a try...except kinda sucks - but more information is better, right?
@@ -109,16 +128,22 @@ class PieFedClient(BaseClient):
 
         except httpx.TimeoutException as e:
             # Server timed out
+            logger.error(msg=str(e))
+
             message = f"{method} request to {endpoint} timed out"
             raise PieFedClientException(message) from e
 
         except httpx.RequestError as e:
             # Some other problem with the request
+            logger.error(msg=str(e))
+
             message = f"{method} request to {endpoint} failed"
             raise PieFedClientException(message) from e
 
         except json.decoder.JSONDecodeError as e:
             # Server returned something that isn't JSON
+            logger.error(msg=str(e))
+
             message = f"{method} request to {endpoint} did not return parseable JSON"
             raise PieFedClientException(message) from e
 
@@ -178,8 +203,14 @@ class PieFedClient(BaseClient):
         """
         version_str = self.nodeinfo["software"]["version"]
 
-        self._instance_version = semver.Version.parse(version_str)
-        return self._instance_version
+        try:
+            self._instance_version = semver.Version.parse(version_str)
+            return self._instance_version
+        except ValueError as e:
+            logger.error(msg=str(e))
+            logger.error(f"_instance_version={version_str}")
+
+            raise PieFedClientException(f"Instance version from nodeinfo not parseable: {version_str}")
 
 
 class AsyncPieFedClient:

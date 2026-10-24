@@ -1,4 +1,10 @@
+import logging
+
 from .clients import PieFedClient
+from .site import Site
+
+
+logger = logging.getLogger(__name__)
 
 
 class PieFed:
@@ -8,6 +14,9 @@ class PieFed:
     def __init__(self, instance_url: str, timeout: float = 5.0):
         self.instance_url = instance_url.removesuffix("/")
         self._client = PieFedClient(instance_url=instance_url, timeout=timeout)
+
+        # Initialize attributes used for different endpoint groupings
+        self.site = Site(client=self._client)
 
     def __enter__(self):
         return self
