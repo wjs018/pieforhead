@@ -1,0 +1,2 @@
+class PieFedClientException(Exception):
+    pass
