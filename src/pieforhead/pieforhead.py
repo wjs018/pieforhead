@@ -48,9 +48,9 @@ class PieFedAsync:
     _client: AsyncPieFedClient
     instance_url: str
 
-    def __init__(self, instance_url: str, timeout: float = 5.0):
+    def __init__(self, instance_url: str, timeout: float = 5.0, raise_exceptions: bool = True):
         self.instance_url = instance_url.removesuffix("/")
-        self._client = AsyncPieFedClient(instance_url=instance_url, timeout=timeout)
+        self._client = AsyncPieFedClient(instance_url=instance_url, timeout=timeout, raise_exceptions=raise_exceptions)
 
         # Initialize attributes used for different endpoint groupings
         self.site = SiteAsync(client=self._client)
