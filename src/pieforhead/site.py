@@ -10,7 +10,7 @@ class Site:
     def __init__(self, client: PieFedClient):
         self._client = client
 
-    def get(self) -> dict:
+    def get(self) -> dict | None:
         """Dumps value returned from site endpoint into a dict.
 
         Returns:
@@ -19,7 +19,7 @@ class Site:
 
         return self._client.request(method="GET", endpoint="site")
 
-    def version(self) -> semver.Version:
+    def version(self) -> semver.Version | None:
         """Fetch software version from site/version endpoint.
 
         Returns:
@@ -27,6 +27,10 @@ class Site:
         """
 
         resp = self._client.request(method="GET", endpoint="site/version")
+
+        if resp is None:
+            # Some problem with the request, but exceptions are suppressed
+            return
 
         if "version" in resp:
             try:
@@ -36,7 +40,7 @@ class Site:
 
         return
 
-    def block(self, block: bool, instance_id: int) -> bool:
+    def block(self, block: bool, instance_id: int) -> bool | None:
         """Block or unblock an instance with a given id.
 
         Args:
@@ -50,13 +54,23 @@ class Site:
 
         resp = self._client.request(method="POST", endpoint="site/block", data=payload)
 
+        if resp is None:
+            # Some problem with the request, but exceptions are suppressed
+            return
+
         return resp["blocked"]
 
     def instance_chooser(self):
-        raise NotImplementedError
+        if self._client.raise_exceptions:
+            raise NotImplementedError
+        else:
+            return
 
     def instance_chooser_search(self):
-        raise NotImplementedError
+        if self._client.raise_exceptions:
+            raise NotImplementedError
+        else:
+            return
 
 
 class SiteAsync:
@@ -65,7 +79,7 @@ class SiteAsync:
     def __init__(self, client: AsyncPieFedClient):
         self._client = client
 
-    async def get(self) -> dict:
+    async def get(self) -> dict | None:
         """Dumps value returned from site endpoint into a dict.
 
         Returns:
@@ -74,7 +88,7 @@ class SiteAsync:
 
         return await self._client.request(method="GET", endpoint="site")
 
-    async def version(self) -> semver.Version:
+    async def version(self) -> semver.Version | None:
         """Fetch software version from site/version endpoint.
 
         Returns:
@@ -82,6 +96,10 @@ class SiteAsync:
         """
 
         resp = await self._client.request(method="GET", endpoint="site/version")
+
+        if resp is None:
+            # Some problem with the request, but exceptions are suppressed
+            return
 
         if "version" in resp:
             try:
@@ -91,7 +109,7 @@ class SiteAsync:
 
         return
 
-    async def block(self, block: bool, instance_id: int) -> bool:
+    async def block(self, block: bool, instance_id: int) -> bool | None:
         """Block or unblock an instance with a given id.
 
         Args:
@@ -105,10 +123,20 @@ class SiteAsync:
 
         resp = await self._client.request(method="POST", endpoint="site/block", data=payload)
 
+        if resp is None:
+            # Some problem with the request, but exceptions are suppressed
+            return
+
         return resp["blocked"]
 
     async def instance_chooser(self):
-        raise NotImplementedError
+        if self._client.raise_exceptions:
+            raise NotImplementedError
+        else:
+            return
 
     async def instance_chooser_search(self):
-        raise NotImplementedError
+        if self._client.raise_exceptions:
+            raise NotImplementedError
+        else:
+            return

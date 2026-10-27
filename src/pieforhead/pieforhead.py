@@ -4,6 +4,7 @@ import semver
 
 from .clients import AsyncPieFedClient, PieFedClient
 from .site import Site, SiteAsync
+from .image import Image, ImageAsync
 
 logger = logging.getLogger(__name__)
 
@@ -12,12 +13,13 @@ class PieFed:
     _client: PieFedClient
     instance_url: str
 
-    def __init__(self, instance_url: str, timeout: float = 5.0):
+    def __init__(self, instance_url: str, timeout: float = 5.0, raise_exceptions: bool = True):
         self.instance_url = instance_url.removesuffix("/")
-        self._client = PieFedClient(instance_url=instance_url, timeout=timeout)
+        self._client = PieFedClient(instance_url=instance_url, timeout=timeout, raise_exceptions=raise_exceptions)
 
         # Initialize attributes used for different endpoint groupings
         self.site = Site(client=self._client)
+        self.image = Image(client=self._client)
 
     def __enter__(self):
         return self
@@ -52,6 +54,7 @@ class PieFedAsync:
 
         # Initialize attributes used for different endpoint groupings
         self.site = SiteAsync(client=self._client)
+        self.image = ImageAsync(client=self._client)
 
     async def __aenter__(self):
         return self

@@ -8,11 +8,12 @@ from pieforhead.clients import PieFedClient
 from pieforhead.exceptions import PieFedClientException
 
 
-def make_client(handler):
+def make_client(handler, raise_exceptions=True):
     """Makes a mock client for testing.
 
     Args:
         handler: each test has a custom handler meant to give a specific, mocked response
+        raise_exceptions: whether request errors should raise an exception
 
     Returns:
         PieFedClient: mocked client for testing
@@ -24,7 +25,11 @@ def make_client(handler):
         transport=transport,
         base_url=f"{instance_url}/api/{api_version}/",
     )
-    return PieFedClient(instance_url=instance_url, existing_client=http_client)
+    return PieFedClient(
+        instance_url=instance_url,
+        existing_client=http_client,
+        raise_exceptions=raise_exceptions,
+    )
 
 
 def test_get_request():
@@ -133,5 +138,20 @@ def test_raise_exception_with_server_response():
         # Make sure that the mocked server error is included in the trace
         with pytest.raises(PieFedClientException, match=r"Invalid request"):
             client.request("GET", "site")
+    finally:
+        client.close()
+
+
+def test_suppress_exceptions():
+    """Ensure that server errors return None when exceptions are suppressed."""
+
+    def custom_handler(request):
+        return httpx.Response(400, json={"message": "Invalid request"})
+
+    client = make_client(custom_handler, raise_exceptions=False)
+
+    try:
+        # No exception is raised and instead, the request just returns None
+        assert client.request("GET", "site") is None
     finally:
         client.close()

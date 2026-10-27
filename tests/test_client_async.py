@@ -9,11 +9,12 @@ from pieforhead.clients import AsyncPieFedClient
 from pieforhead.exceptions import PieFedClientException
 
 
-def make_client(handler):
+def make_client(handler, raise_exceptions=True):
     """Makes a mock async client for testing.
 
     Args:
         handler: each test has a custom handler meant to give a specific, mocked response
+        raise_exceptions: whether request errors should raise an exception
 
     Returns:
         AsyncPieFedClient: mocked async client for testing
@@ -25,7 +26,11 @@ def make_client(handler):
         transport=transport,
         base_url=f"{instance_url}/api/{api_version}/",
     )
-    return AsyncPieFedClient(instance_url=instance_url, existing_client=http_client)
+    return AsyncPieFedClient(
+        instance_url=instance_url,
+        existing_client=http_client,
+        raise_exceptions=raise_exceptions,
+    )
 
 
 def test_get_request():
@@ -47,6 +52,23 @@ def test_get_request():
             await client.close()
 
     # Start the event loop and run the test
+    asyncio.run(run_test())
+
+
+def test_suppress_exceptions():
+    """Ensure that server errors return None when exceptions are suppressed."""
+
+    async def run_test():
+        def custom_handler(request):
+            return httpx.Response(400, json={"message": "Invalid request"})
+
+        client = make_client(custom_handler, raise_exceptions=False)
+
+        try:
+            assert await client.request("GET", "site") is None
+        finally:
+            await client.close()
+
     asyncio.run(run_test())
 
 

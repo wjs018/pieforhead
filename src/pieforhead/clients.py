@@ -21,14 +21,16 @@ class BaseClient:
     jwt_token: str = ""
     current_username_or_email: str = ""
     current_password: str = ""
-    _nodeinfo: dict = {}
-    _instance_version: semver.Version = None
+    raise_exceptions: bool = True
+    _nodeinfo: dict | None = None
+    _instance_version: semver.Version | None = None
 
     def __init__(
         self,
         instance_url: str,
         timeout: float = 5.0,
         api_version: str = "alpha",
+        raise_exceptions: bool = True,
     ):
         """Constructor for base client class.
 
@@ -40,20 +42,33 @@ class BaseClient:
         self.instance_url = instance_url
         self.timeout = timeout
         self.api_version = api_version
+        self.raise_exceptions = raise_exceptions
         self.headers = {"User-Agent": f"pieforhead/{VERSION}", "Accept": "application/json"}
+
+    def _request_error(self, message: str, error: Exception) -> dict | None:
+        # Always log the error
+        logger.error(message)
+
+        # Only raise if desired
+        if self.raise_exceptions:
+            raise PieFedClientException(message) from error
+
+        # Return None if raising is not desired
+        return
 
 
 class PieFedClient(BaseClient):
     """Synchronous client for handling network requests."""
 
-    _client: httpx.Client = None
+    _client: httpx.Client | None = None
 
     def __init__(
         self,
         instance_url: str,
         timeout: float = 5.0,
         api_version: str = "alpha",
-        existing_client: httpx.Client = None,
+        existing_client: httpx.Client | None = None,
+        raise_exceptions: bool = True,
     ):
         """Constructor for Synchronous client.
 
@@ -63,8 +78,15 @@ class PieFedClient(BaseClient):
             api_version (str, optional): Version of the PieFed API. Defaults to "alpha".
             existing_client (httpx.Client, optional): Pass an httpx.Client object to reuse it (mainly used for tests).
                 Defaults to None.
+            raise_exceptions (bool, optional): Whether to raise exceptions on request errors or just return None.
+                Defaults to True.
         """
-        super().__init__(instance_url=instance_url, timeout=timeout, api_version=api_version)
+        super().__init__(
+            instance_url=instance_url,
+            timeout=timeout,
+            api_version=api_version,
+            raise_exceptions=raise_exceptions,
+        )
 
         base_url = f"{instance_url}/api/{api_version}/"
 
@@ -73,7 +95,14 @@ class PieFedClient(BaseClient):
         else:
             self._client = httpx.Client(headers=self.headers, timeout=self.timeout, base_url=base_url)
 
-    def request(self, method: str, endpoint: str, params: dict = {}, data: dict = {}) -> dict:
+    def request(
+        self,
+        method: str,
+        endpoint: str,
+        params: dict = {},
+        data: dict = {},
+        files: dict | None = None,
+    ) -> dict | None:
         """Function to handle network requests.
 
         Args:
@@ -81,6 +110,7 @@ class PieFedClient(BaseClient):
             endpoint (str): API endpoint to send request to e.g. "post/list"
             params (dict, optional): url parameters for the request (only for "GET") Defaults to {}.
             data (dict, optional): json payload for the request ("POST" and "PUT") Defaults to {}.
+            files (dict, optional): multipart files to include with the request.
 
         Raises:
             PieFedClientException: should also include error message returned from server if available
@@ -103,6 +133,7 @@ class PieFedClient(BaseClient):
                 timeout=self.timeout,
                 params=params,
                 json=data,
+                files=files,
             )
 
             resp.raise_for_status()
@@ -124,28 +155,28 @@ class PieFedClient(BaseClient):
             if error_body and error_body.get("message", ""):
                 message += f": {error_body['message']}"
 
-            raise PieFedClientException(message) from e
+            return self._request_error(message=message, error=e)
 
         except httpx.TimeoutException as e:
             # Server timed out
             logger.error(msg=str(e))
 
             message = f"{method} request to {endpoint} timed out"
-            raise PieFedClientException(message) from e
+            return self._request_error(message=message, error=e)
 
         except httpx.RequestError as e:
             # Some other problem with the request
             logger.error(msg=str(e))
 
             message = f"{method} request to {endpoint} failed"
-            raise PieFedClientException(message) from e
+            return self._request_error(message=message, error=e)
 
         except json.decoder.JSONDecodeError as e:
             # Server returned something that isn't JSON
             logger.error(msg=str(e))
 
             message = f"{method} request to {endpoint} did not return parseable JSON"
-            raise PieFedClientException(message) from e
+            return self._request_error(message=message, error=e)
 
     def close(self):
         self._client.close()
@@ -155,6 +186,10 @@ class PieFedClient(BaseClient):
         method = "POST"
 
         resp = self.request(method=method, endpoint="user/login", data=payload)
+
+        if resp is None:
+            # Problem with the request that was suppressed, just return False
+            return False
 
         self.jwt_token = resp["jwt"]
         self.headers["Authorization"] = "Bearer " + self.jwt_token
@@ -169,7 +204,12 @@ class PieFedClient(BaseClient):
     def log_out(self) -> bool:
         method = "POST"
 
-        _ = self.request(method=method, endpoint="user/logout")
+        resp = self.request(method=method, endpoint="user/logout")
+
+        if resp is None:
+            # Problem with the request that was suppressed, just return False
+            return False
+
         self.jwt_token = ""
         self.current_username_or_email = ""
         self.current_password = ""
@@ -177,11 +217,11 @@ class PieFedClient(BaseClient):
         return True
 
     @property
-    def nodeinfo(self) -> dict:
+    def nodeinfo(self) -> dict | None:
         """Dict containing the instance's nodeinfo output.
 
         Returns:
-            dict: deserialized copy of the instance's nodeinfo
+            dict: deserialized copy of the instance's nodeinfo or None if the request failed and exception ignored
         """
         if self._nodeinfo:
             return self._nodeinfo
@@ -192,15 +232,23 @@ class PieFedClient(BaseClient):
         resp = self.request(method=method, endpoint=endpoint)
         self._nodeinfo = resp
 
-        return self._nodeinfo if self._nodeinfo else {}
+        return self._nodeinfo if self._nodeinfo else None
 
     @property
-    def instance_version(self) -> semver.Version:
+    def instance_version(self) -> semver.Version | None:
         """The instance's software version from the nodeinfo.
 
         Returns:
-            semver.Version: software version of the piefed instance
+            semver.Version: software version of the piefed instance or None if something failed and the exception was
+                suppressed
         """
+
+        current_nodeinfo = self.nodeinfo
+
+        if current_nodeinfo is None:
+            # Problem with the request that was suppressed, just return False
+            return None
+
         version_str = self.nodeinfo["software"]["version"]
 
         try:
@@ -210,7 +258,8 @@ class PieFedClient(BaseClient):
             logger.error(msg=str(e))
             logger.error(f"_instance_version={version_str}")
 
-            raise PieFedClientException(f"Instance version from nodeinfo not parseable: {version_str}")
+            message = f"Instance version from nodeinfo not parseable: {version_str}"
+            return self._request_error(message=message, error=e)
 
     def __enter__(self):
         return self
@@ -229,7 +278,8 @@ class AsyncPieFedClient(BaseClient):
         instance_url: str,
         timeout: float = 5.0,
         api_version: str = "alpha",
-        existing_client: httpx.AsyncClient = None,
+        existing_client: httpx.AsyncClient | None = None,
+        raise_exceptions: bool = True,
     ):
         """Constructor for Asynchronous client.
 
@@ -239,8 +289,15 @@ class AsyncPieFedClient(BaseClient):
             api_version (str, optional): Version of the PieFed API. Defaults to "alpha".
             existing_client (httpx.Client, optional): Pass an httpx.Client object to reuse it (mainly used for tests).
                 Defaults to None.
+            raise_exceptions: (bool, optional): Whether to raise exceptions on request errors or just return None.
+                Defaults to True.
         """
-        super().__init__(instance_url=instance_url, timeout=timeout, api_version=api_version)
+        super().__init__(
+            instance_url=instance_url,
+            timeout=timeout,
+            api_version=api_version,
+            raise_exceptions=raise_exceptions,
+        )
 
         base_url = f"{instance_url}/api/{api_version}/"
 
@@ -249,7 +306,14 @@ class AsyncPieFedClient(BaseClient):
         else:
             self._client = httpx.AsyncClient(headers=self.headers, timeout=self.timeout, base_url=base_url)
 
-    async def request(self, method: str, endpoint: str, params: dict = {}, data: dict = {}) -> dict:
+    async def request(
+        self,
+        method: str,
+        endpoint: str,
+        params: dict = {},
+        data: dict = {},
+        files: dict | None = None,
+    ) -> dict | None:
         """Async function to handle network requests.
 
         Args:
@@ -257,6 +321,7 @@ class AsyncPieFedClient(BaseClient):
             endpoint (str): API endpoint to send request to e.g. "post/list"
             params (dict, optional): url parameters for the request (only for "GET") Defaults to {}.
             data (dict, optional): json payload for the request ("POST" and "PUT") Defaults to {}.
+            files (dict, optional): multipart files to include with the request.
 
         Raises:
             PieFedClientException: should also include error message returned from server if available
@@ -273,7 +338,13 @@ class AsyncPieFedClient(BaseClient):
             logger.debug(f"method={method}, endpoint={endpoint}, params={params}, data={data}")
 
             resp = await self._client.request(
-                method=method, url=endpoint, headers=self.headers, timeout=self.timeout, params=params, json=data
+                method=method,
+                url=endpoint,
+                headers=self.headers,
+                timeout=self.timeout,
+                params=params,
+                json=data,
+                files=files,
             )
 
             resp.raise_for_status()
@@ -295,28 +366,28 @@ class AsyncPieFedClient(BaseClient):
             if error_body and error_body.get("message", ""):
                 message += f": {error_body['message']}"
 
-            raise PieFedClientException(message) from e
+            return self._request_error(message=message, error=e)
 
         except httpx.TimeoutException as e:
             # Server timed out
             logger.error(msg=str(e))
 
             message = f"{method} request to {endpoint} timed out"
-            raise PieFedClientException(message) from e
+            return self._request_error(message=message, error=e)
 
         except httpx.RequestError as e:
             # Some other problem with the request
             logger.error(msg=str(e))
 
             message = f"{method} request to {endpoint} failed"
-            raise PieFedClientException(message) from e
+            return self._request_error(message=message, error=e)
 
         except json.decoder.JSONDecodeError as e:
             # Server returned something that isn't JSON
             logger.error(msg=str(e))
 
             message = f"{method} request to {endpoint} did not return parseable JSON"
-            raise PieFedClientException(message) from e
+            return self._request_error(message=message, error=e)
 
     async def aclose(self):
         await self._client.aclose()
@@ -336,6 +407,10 @@ class AsyncPieFedClient(BaseClient):
 
         resp = await self.request(method=method, endpoint="user/login", data=payload)
 
+        if resp is None:
+            # Problem with the request that was suppressed, just return False
+            return False
+
         self.jwt_token = resp["jwt"]
         self.headers["Authorization"] = "Bearer " + self.jwt_token
         self.current_username_or_email = username_or_email
@@ -349,7 +424,12 @@ class AsyncPieFedClient(BaseClient):
     async def log_out(self) -> bool:
         method = "POST"
 
-        _ = await self.request(method=method, endpoint="user/logout")
+        resp = await self.request(method=method, endpoint="user/logout")
+
+        if resp is None:
+            # Problem with the request that was suppressed, just return False
+            return False
+
         self.jwt_token = ""
         self.current_username_or_email = ""
         self.current_password = ""
@@ -361,7 +441,7 @@ class AsyncPieFedClient(BaseClient):
         """Dict containing the instance's nodeinfo output.
 
         Returns:
-            dict: deserialized copy of the instance's nodeinfo
+            dict: deserialized copy of the instance's nodeinfo or None if the request failed and exception ignored
         """
         if self._nodeinfo:
             return self._nodeinfo
@@ -372,7 +452,7 @@ class AsyncPieFedClient(BaseClient):
         resp = await self.request(method=method, endpoint=endpoint)
         self._nodeinfo = resp
 
-        return self._nodeinfo if self._nodeinfo else {}
+        return self._nodeinfo if self._nodeinfo else None
 
     @property
     async def instance_version(self) -> semver.Version:
@@ -381,7 +461,14 @@ class AsyncPieFedClient(BaseClient):
         Returns:
             semver.Version: software version of the piefed instance
         """
-        version_str = (await self.nodeinfo)["software"]["version"]
+
+        current_nodeinfo = await self.nodeinfo
+
+        if current_nodeinfo is None:
+            # Problem with the request that was suppressed, just return False
+            return None
+
+        version_str = current_nodeinfo["software"]["version"]
 
         try:
             self._instance_version = semver.Version.parse(version_str)
@@ -390,4 +477,5 @@ class AsyncPieFedClient(BaseClient):
             logger.error(msg=str(e))
             logger.error(f"_instance_version={version_str}")
 
-            raise PieFedClientException(f"Instance version from nodeinfo not parseable: {version_str}")
+            message = f"Instance version from nodeinfo not parseable: {version_str}"
+            return self._request_error(message=message, error=e)

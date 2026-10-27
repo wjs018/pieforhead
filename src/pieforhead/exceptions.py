@@ -8,3 +8,7 @@ class NotImplementedError(Exception):
 
 class SiteException(Exception):
     pass
+
+
+class ImageException(Exception):
+    pass
