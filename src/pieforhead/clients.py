@@ -5,7 +5,7 @@ import httpx
 import semver
 
 from .exceptions import PieFedClientException
-from .utils import VERSION
+from .utils import __version__ as VERSION
 
 
 logger = logging.getLogger(__name__)
