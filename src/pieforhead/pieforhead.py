@@ -3,8 +3,9 @@ import logging
 import semver
 
 from .clients import AsyncPieFedClient, PieFedClient
-from .site import Site, SiteAsync
 from .image import Image, ImageAsync
+from .site import Site, SiteAsync
+from .topic import Topic, TopicAsync
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,7 @@ class PieFed:
         # Initialize attributes used for different endpoint groupings
         self.site = Site(client=self._client)
         self.image = Image(client=self._client)
+        self.topic = Topic(client=self._client)
 
     def __enter__(self):
         return self
@@ -55,6 +57,7 @@ class PieFedAsync:
         # Initialize attributes used for different endpoint groupings
         self.site = SiteAsync(client=self._client)
         self.image = ImageAsync(client=self._client)
+        self.topic = TopicAsync(client=self._client)
 
     async def __aenter__(self):
         return self
