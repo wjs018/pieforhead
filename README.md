@@ -6,7 +6,7 @@ A python wrapper for the PieFed API supporting both synchronous and asynchronous
 
 ## Usage Notes
 
-In general, all successful requests to the server should return a `dict` with the server's json response. Due to the alpha nature of the PieFed API, the maintenance burden of creating and updating response models as features/fields are added to the API is a burden that I don't want to take on at this time. Please refer to the official PieFed OpenAPI specification ([stable version](https://stable.wjs018.xyz/api/alpha/swagger), [development version](https://crust.piefed.social/api/alpha/swagger)) to see what your code should expect as a response.
+In general, successful requests to the server should return a `dict` with the server's json response with very few exceptions (which should be type-hinted). Due to the alpha nature of the PieFed API, the maintenance burden of creating and updating response models as features/fields are added to the API is a burden that I don't want to take on at this time. Please refer to the official PieFed OpenAPI specification ([stable version](https://stable.wjs018.xyz/api/alpha/swagger), [development version](https://crust.piefed.social/api/alpha/swagger)) to see what your code should expect as a response.
 
 By default, exceptions will be raised if something goes wrong (e.g. malformed request, network timeout, 5XX errors, etc.) to provide a trace. However, to suppress these exceptions, you can pass the `raise_exceptions=False` keyword argument when instantiating your client. This will cause a returned value of `None` instead of raising an exception. Please make sure that your code handles such a case appropriately.
 

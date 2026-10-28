@@ -12,3 +12,7 @@ class SiteException(Exception):
 
 class ImageException(Exception):
     pass
+
+
+class AdminException(Exception):
+    pass

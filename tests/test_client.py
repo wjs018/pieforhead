@@ -50,6 +50,20 @@ def test_get_request():
         client.close()
 
 
+def test_request_with_empty_response_body():
+    def custom_handler(request):
+        # No json returned from server, but good status code
+        return httpx.Response(200, text="null\n")
+
+    client = make_client(custom_handler)
+
+    try:
+        # Test response
+        assert client.request("GET", "site") is True
+    finally:
+        client.close()
+
+
 # Test looks the same for both POST and PUT, so parametrize them
 @pytest.mark.parametrize("method", ["POST", "PUT"])
 def test_post_put_request(method: str):

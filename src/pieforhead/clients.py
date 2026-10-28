@@ -102,7 +102,7 @@ class PieFedClient(BaseClient):
         params: dict = {},
         data: dict = {},
         files: dict | None = None,
-    ) -> dict | None:
+    ) -> dict | bool | None:
         """Function to handle network requests.
 
         Args:
@@ -116,7 +116,9 @@ class PieFedClient(BaseClient):
             PieFedClientException: should also include error message returned from server if available
 
         Returns:
-            dict: deserialized json returned by the server
+            dict | bool | None : deserialized json returned by the server on successful request with returned json.
+                If True is returned, then the request was successful, but no json was returned. If None is returned,
+                then there was a problem with the request, but exceptions were suppressed.
         """
 
         if self.jwt_token and "Authorization" not in self.headers:
@@ -124,7 +126,7 @@ class PieFedClient(BaseClient):
 
         try:
             # Make the request
-            logger.debug(f"method={method}, endpoint={endpoint}, params={params}, data={data}")
+            logger.debug(f"method={method}, endpoint={endpoint}, params={params}, data={data}, files={files}")
 
             resp = self._client.request(
                 method=method,
@@ -138,8 +140,16 @@ class PieFedClient(BaseClient):
 
             resp.raise_for_status()
 
-            # Everything went well
-            return resp.json()
+            # Good status code, check if there is a json body, just return True if there is no body
+            if resp.status_code == 200 and resp.text == "null\n":
+                return True
+
+            try:
+                # Try deserializing
+                return resp.json()
+            except Exception as e:
+                # The response code was good, but it wasn't json that was returned
+                return self._request_error(message="Can't deserialize response", error=e)
 
         except httpx.HTTPStatusError as e:
             # Server returned a bad status code, try to pull out the returned error message
@@ -313,7 +323,7 @@ class AsyncPieFedClient(BaseClient):
         params: dict = {},
         data: dict = {},
         files: dict | None = None,
-    ) -> dict | None:
+    ) -> dict | bool | None:
         """Async function to handle network requests.
 
         Args:
@@ -327,7 +337,9 @@ class AsyncPieFedClient(BaseClient):
             PieFedClientException: should also include error message returned from server if available
 
         Returns:
-            dict: deserialized json returned by the server
+            dict | bool | None : deserialized json returned by the server on successful request with returned json.
+                If True is returned, then the request was successful, but no json was returned. If None is returned,
+                then there was a problem with the request, but exceptions were suppressed.
         """
 
         if self.jwt_token and "Authorization" not in self.headers:
@@ -349,8 +361,16 @@ class AsyncPieFedClient(BaseClient):
 
             resp.raise_for_status()
 
-            # Everything went well
-            return resp.json()
+            # Good status code, check if there is a json body, just return True if there is no body
+            if resp.status_code == 200 and resp.text == "null\n":
+                return True
+
+            try:
+                # Try deserializing
+                return resp.json()
+            except Exception as e:
+                # The response code was good, but it wasn't json that was returned
+                raise PieFedClientException("Can't deserialize response") from e
 
         except httpx.HTTPStatusError as e:
             # Server returned a bad status code, try to pull out the returned error message

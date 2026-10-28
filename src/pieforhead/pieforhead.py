@@ -6,6 +6,7 @@ from .clients import AsyncPieFedClient, PieFedClient
 from .image import Image, ImageAsync
 from .site import Site, SiteAsync
 from .topic import Topic, TopicAsync
+from .admin import Admin, AdminAsync
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ class PieFed:
         self.site = Site(client=self._client)
         self.image = Image(client=self._client)
         self.topic = Topic(client=self._client)
+        self.admin = Admin(client=self._client)
 
     def __enter__(self):
         return self
@@ -58,6 +60,7 @@ class PieFedAsync:
         self.site = SiteAsync(client=self._client)
         self.image = ImageAsync(client=self._client)
         self.topic = TopicAsync(client=self._client)
+        self.admin = AdminAsync(client=self._client)
 
     async def __aenter__(self):
         return self

@@ -55,6 +55,24 @@ def test_get_request():
     asyncio.run(run_test())
 
 
+def test_request_with_empty_response_body():
+    async def run_test():
+        def custom_handler(request):
+            # No json returned from server, but good status code
+            return httpx.Response(200, text="null\n")
+
+        client = make_client(custom_handler)
+
+        try:
+            # Test response
+            assert await client.request("GET", "site") is True
+        finally:
+            await client.close()
+
+    # Start the event loop and run the test
+    asyncio.run(run_test())
+
+
 def test_suppress_exceptions():
     """Ensure that server errors return None when exceptions are suppressed."""
 
