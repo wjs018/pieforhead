@@ -1,7 +1,5 @@
-import semver
-
 from .clients import PieFedClient, AsyncPieFedClient
-from .exceptions import NotImplementedError, SiteException
+from .exceptions import NotImplementedError
 
 
 class Site:
@@ -14,33 +12,21 @@ class Site:
         """Dumps value returned from site endpoint into a dict.
 
         Returns:
-            dict: contents of GET site endpoint
+            dict | None : contents of GET site endpoint, None if a suppressed error
         """
 
         return self._client.request(method="GET", endpoint="site")
 
-    def version(self) -> semver.Version | None:
+    def version(self) -> dict | None:
         """Fetch software version from site/version endpoint.
 
         Returns:
-            semver.Version: software version
+            dict | None : response dict or none if an error was suppressed
         """
 
-        resp = self._client.request(method="GET", endpoint="site/version")
+        return self._client.request(method="GET", endpoint="site/version")
 
-        if resp is None:
-            # Some problem with the request, but exceptions are suppressed
-            return
-
-        if "version" in resp:
-            try:
-                return semver.Version.parse(resp["version"])
-            except ValueError as e:
-                raise SiteException(f"Version not parseable: {resp['version']}") from e
-
-        return
-
-    def block(self, block: bool, instance_id: int) -> bool | None:
+    def block(self, block: bool, instance_id: int) -> dict | None:
         """Block or unblock an instance with a given id.
 
         Args:
@@ -48,17 +34,11 @@ class Site:
             instance_id (int): id of instance
 
         Returns:
-            bool: True if instance is now blocked, False if it is now unblocked
+            dict | None : response dict or None if there was a suppressed error
         """
         payload = {"block": block, "instance_id": instance_id}
 
-        resp = self._client.request(method="POST", endpoint="site/block", data=payload)
-
-        if resp is None:
-            # Some problem with the request, but exceptions are suppressed
-            return
-
-        return resp["blocked"]
+        return self._client.request(method="POST", endpoint="site/block", data=payload)
 
     def instance_chooser(self):
         if self._client.raise_exceptions:
@@ -88,28 +68,16 @@ class SiteAsync:
 
         return await self._client.request(method="GET", endpoint="site")
 
-    async def version(self) -> semver.Version | None:
+    async def version(self) -> dict | None:
         """Fetch software version from site/version endpoint.
 
         Returns:
-            semver.Version: software version
+            dict | None : response dict or None if there was a suppressed error
         """
 
-        resp = await self._client.request(method="GET", endpoint="site/version")
+        return await self._client.request(method="GET", endpoint="site/version")
 
-        if resp is None:
-            # Some problem with the request, but exceptions are suppressed
-            return
-
-        if "version" in resp:
-            try:
-                return semver.Version.parse(resp["version"])
-            except ValueError as e:
-                raise SiteException(f"Version not parseable: {resp['version']}") from e
-
-        return
-
-    async def block(self, block: bool, instance_id: int) -> bool | None:
+    async def block(self, block: bool, instance_id: int) -> dict | None:
         """Block or unblock an instance with a given id.
 
         Args:
@@ -117,17 +85,11 @@ class SiteAsync:
             instance_id (int): id of instance
 
         Returns:
-            bool: True if instance is now blocked, False if it is now unblocked
+            dict | None : response dict or None if there was a suppressed error
         """
         payload = {"block": block, "instance_id": instance_id}
 
-        resp = await self._client.request(method="POST", endpoint="site/block", data=payload)
-
-        if resp is None:
-            # Some problem with the request, but exceptions are suppressed
-            return
-
-        return resp["blocked"]
+        return await self._client.request(method="POST", endpoint="site/block", data=payload)
 
     async def instance_chooser(self):
         if self._client.raise_exceptions:

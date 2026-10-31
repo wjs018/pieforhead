@@ -6,10 +6,6 @@ class NotImplementedError(Exception):
     pass
 
 
-class SiteException(Exception):
-    pass
-
-
 class ImageException(Exception):
     pass
 

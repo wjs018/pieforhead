@@ -2,9 +2,8 @@ import asyncio
 from unittest.mock import AsyncMock, Mock
 
 import pytest
-import semver
 
-from pieforhead.exceptions import NotImplementedError, SiteException
+from pieforhead.exceptions import NotImplementedError
 from pieforhead.site import SiteAsync
 
 
@@ -41,21 +40,7 @@ def test_site_version():
         response = {"version": "1.2.3"}
         site, client = make_site(response)
 
-        assert await site.version() == semver.Version.parse("1.2.3")  # Correct type, value is returned
-        client.request.assert_awaited_once_with(method="GET", endpoint="site/version")  # ensure proper args
-
-    # Start the event loop and run the test
-    asyncio.run(run_test())
-
-
-def test_site_exception():
-    async def run_test():
-        site, client = make_site({"version": "not-a-version"})
-
-        with pytest.raises(SiteException, match="Version not parseable: not-a-version"):
-            # Ensure that the custom exception is raised when version can't be parsed
-            await site.version()
-
+        assert await site.version() == response  # Ensure proper response
         client.request.assert_awaited_once_with(method="GET", endpoint="site/version")  # ensure proper args
 
     # Start the event loop and run the test
@@ -90,10 +75,11 @@ def test_get_version_raising(endpoint: str):
 @pytest.mark.parametrize("block", [True, False])
 def test_site_block(block: bool):
     async def run_test():
-        site, client = make_site({"blocked": block})
+        response = {"blocked": block}
+        site, client = make_site(response)
 
         # Ensure proper response and args
-        assert await site.block(block=block, instance_id=42) is block
+        assert await site.block(block=block, instance_id=42) == response
         client.request.assert_awaited_once_with(
             method="POST",
             endpoint="site/block",
