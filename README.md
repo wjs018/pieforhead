@@ -98,4 +98,4 @@ This project is in an early stage. Here is a high level summary of where things 
 |      Topic      |     ✅      |      ✅      |                                          |
 | Private Message |     ❌      |      ❌      |                                          |
 |      Admin      |     ✅      |      ✅      |                                          |
-|      Misc.      |     ❌      |      ❌      |                                          |
+|      Misc.      |     ✅      |      ✅      |                                          |
