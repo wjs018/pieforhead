@@ -49,6 +49,64 @@ class PieFed:
     def instance_version(self) -> semver.Version:
         return self._client.instance_version
 
+    # Map Misc endpoints to the top-level PieFed object
+    def search(
+        self,
+        query: str,
+        type_: str,
+        limit: int | None = None,
+        listing_type: str | None = None,
+        page: int | None = None,
+        sort: str | None = None,
+        community_name: str | None = None,
+        community_id: int | None = None,
+        minimum_upvotes: int | None = None,
+        nsfw: str | None = None,
+    ) -> dict | None:
+        return self.misc.search(
+            query=query,
+            type_=type_,
+            limit=limit,
+            listing_type=listing_type,
+            page=page,
+            sort=sort,
+            community_name=community_name,
+            community_id=community_id,
+            minimum_upvotes=minimum_upvotes,
+            nsfw=nsfw,
+        )
+
+    def resolve_object(self, query: str) -> dict | None:
+        return self.misc.resolve_object(query=query)
+
+    def federated_instances(self) -> dict | None:
+        return self.misc.federated_instances()
+
+    def suggest_completion(self, query: str) -> dict | None:
+        return self.misc.suggest_completion(query=query)
+
+    def modlog(
+        self,
+        mod_person_id: int | None = None,
+        community_id: int | None = None,
+        page: int | None = None,
+        limit: int | None = None,
+        type_: str | None = None,
+        other_person_id: int | None = None,
+        post_id: int | None = None,
+        comment_id: int | None = None,
+    ) -> dict | None:
+        return self.misc.modlog(
+            mod_person_id=mod_person_id,
+            community_id=community_id,
+            page=page,
+            limit=limit,
+            type_=type_,
+            other_person_id=other_person_id,
+            post_id=post_id,
+            comment_id=comment_id,
+        )
+
 
 class PieFedAsync:
     _client: AsyncPieFedClient
@@ -86,3 +144,61 @@ class PieFedAsync:
     @property
     async def instance_version(self) -> semver.Version:
         return await self._client.instance_version
+
+    # Map Misc endpoints to the top-level PieFedAsync object
+    async def search(
+        self,
+        query: str,
+        type_: str,
+        limit: int | None = None,
+        listing_type: str | None = None,
+        page: int | None = None,
+        sort: str | None = None,
+        community_name: str | None = None,
+        community_id: int | None = None,
+        minimum_upvotes: int | None = None,
+        nsfw: str | None = None,
+    ) -> dict | None:
+        return await self.misc.search(
+            query=query,
+            type_=type_,
+            limit=limit,
+            listing_type=listing_type,
+            page=page,
+            sort=sort,
+            community_name=community_name,
+            community_id=community_id,
+            minimum_upvotes=minimum_upvotes,
+            nsfw=nsfw,
+        )
+
+    async def resolve_object(self, query: str) -> dict | None:
+        return await self.misc.resolve_object(query=query)
+
+    async def federated_instances(self) -> dict | None:
+        return await self.misc.federated_instances()
+
+    async def suggest_completion(self, query: str) -> dict | None:
+        return await self.misc.suggest_completion(query=query)
+
+    async def modlog(
+        self,
+        mod_person_id: int | None = None,
+        community_id: int | None = None,
+        page: int | None = None,
+        limit: int | None = None,
+        type_: str | None = None,
+        other_person_id: int | None = None,
+        post_id: int | None = None,
+        comment_id: int | None = None,
+    ) -> dict | None:
+        return await self.misc.modlog(
+            mod_person_id=mod_person_id,
+            community_id=community_id,
+            page=page,
+            limit=limit,
+            type_=type_,
+            other_person_id=other_person_id,
+            post_id=post_id,
+            comment_id=comment_id,
+        )
