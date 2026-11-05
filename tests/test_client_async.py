@@ -151,6 +151,66 @@ def test_login_and_logout():
     asyncio.run(run_test())
 
 
+def test_login_and_logout_return_dict():
+    async def run_test():
+        login_response = {"jwt": "test-token"}
+        logout_response = {"success": True}
+
+        def custom_handler(request):
+            if request.url.path.endswith("/user/login"):
+                return httpx.Response(200, json=login_response)
+            return httpx.Response(200, json=logout_response)
+
+        client = make_client(custom_handler)
+
+        try:
+            # Responses should just be returned as dict instead of bool
+            assert await client.log_in("test_user", "hunter2", return_dict=True) == login_response
+            assert await client.is_logged_in() is True
+            assert await client.log_out(return_dict=True) == logout_response
+            assert await client.is_logged_in() is False
+        finally:
+            await client.close()
+
+    # Start the event loop and run the test
+    asyncio.run(run_test())
+
+
+@pytest.mark.parametrize("operation", ["login", "logout"])
+def test_login_and_logout_return_dict_raising(operation):
+    async def run_test():
+        # Return a 400 status code
+        def custom_handler(request):
+            return httpx.Response(400, json={"message": "Invalid request"})
+
+        client = make_client(custom_handler, raise_exceptions=False)
+        if operation == "logout":
+            # Simulate pre-existing login credentials
+            client.jwt_token = "test-token"
+            client.current_username_or_email = "test_user"
+            client.current_password = "hunter2"
+            client.headers["Authorization"] = "Bearer test-token"
+
+        try:
+            if operation == "login":
+                result = await client.log_in("test_user", "hunter2", return_dict=True)
+            else:
+                result = await client.log_out(return_dict=True)
+
+            # Response should be None on a 400 status if not raising
+            assert result is None
+            if operation == "logout":
+                # Credentials still there since logout request failed
+                assert client.jwt_token == "test-token"
+                assert client.current_username_or_email == "test_user"
+                assert client.current_password == "hunter2"
+        finally:
+            await client.close()
+
+    # Start the event loop and run the test
+    asyncio.run(run_test())
+
+
 def test_nodeinfo_and_version():
     async def run_test():
         num_requests = 0

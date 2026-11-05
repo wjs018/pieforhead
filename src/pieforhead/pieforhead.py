@@ -8,6 +8,7 @@ from .site import Site, SiteAsync
 from .topic import Topic, TopicAsync
 from .admin import Admin, AdminAsync
 from .misc import Misc, MiscAsync
+from .user import User, UserAsync
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class PieFed:
         self.topic = Topic(client=self._client)
         self.admin = Admin(client=self._client)
         self.misc = Misc(client=self._client)
+        self.user = User(client=self._client)
 
     def __enter__(self):
         return self
@@ -122,6 +124,7 @@ class PieFedAsync:
         self.topic = TopicAsync(client=self._client)
         self.admin = AdminAsync(client=self._client)
         self.misc = MiscAsync(client=self._client)
+        self.user = UserAsync(client=self._client)
 
     async def __aenter__(self):
         return self

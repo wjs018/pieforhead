@@ -117,6 +117,58 @@ def test_login_and_logout():
         client.close()
 
 
+def test_login_and_logout_return_dict():
+    login_response = {"jwt": "test-token"}
+    logout_response = {"success": True}
+
+    def custom_handler(request):
+        if request.url.path.endswith("/user/login"):
+            return httpx.Response(200, json=login_response)
+        return httpx.Response(200, json=logout_response)
+
+    client = make_client(custom_handler)
+
+    try:
+        # Responses should just be returned as dict instead of bool
+        assert client.log_in("test_user", "hunter2", return_dict=True) == login_response
+        assert client.is_logged_in() is True
+        assert client.log_out(return_dict=True) == logout_response
+        assert client.is_logged_in() is False
+    finally:
+        client.close()
+
+
+@pytest.mark.parametrize("operation", ["login", "logout"])
+def test_login_and_logout_return_dict_raising(operation):
+    # Return a 400 status code
+    def custom_handler(request):
+        return httpx.Response(400, json={"message": "Invalid request"})
+
+    client = make_client(custom_handler, raise_exceptions=False)
+    if operation == "logout":
+        # Simulate pre-existing login credentials
+        client.jwt_token = "test-token"
+        client.current_username_or_email = "test_user"
+        client.current_password = "hunter2"
+        client.headers["Authorization"] = "Bearer test-token"
+
+    try:
+        if operation == "login":
+            result = client.log_in("test_user", "hunter2", return_dict=True)
+        else:
+            result = client.log_out(return_dict=True)
+
+        # Response should be None on a 400 status if not raising
+        assert result is None
+        if operation == "logout":
+            # Credentials still there since logout request failed
+            assert client.jwt_token == "test-token"
+            assert client.current_username_or_email == "test_user"
+            assert client.current_password == "hunter2"
+    finally:
+        client.close()
+
+
 def test_nodeinfo_and_version():
     num_requests = 0
 

@@ -90,7 +90,7 @@ This project is in an early stage. Here is a high level summary of where things 
 | :-------------: | :---------: | :----------: | :--------------------------------------- |
 |      Site       |     ✅      |      ✅      | Instance chooser endpoints unimplemented |
 |     Upload      |     ✅      |      ✅      |                                          |
-|      User       |     🟡      |      🟡      | Auth endpoints implemented               |
+|      User       |     ✅      |      ✅      | Register endpoint unimplemented          |
 |      Post       |     ❌      |      ❌      |                                          |
 |     Comment     |     ❌      |      ❌      |                                          |
 |    Community    |     ❌      |      ❌      |                                          |

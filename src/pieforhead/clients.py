@@ -191,14 +191,16 @@ class PieFedClient(BaseClient):
     def close(self):
         self._client.close()
 
-    def log_in(self, username_or_email: str, password: str) -> bool:
+    def log_in(self, username_or_email: str, password: str, return_dict: bool = False) -> bool | dict | None:
         payload = {"username": username_or_email, "password": password}
         method = "POST"
 
         resp = self.request(method=method, endpoint="user/login", data=payload)
 
         if resp is None:
-            # Problem with the request that was suppressed, just return False
+            # Problem with the request that was suppressed
+            if return_dict:
+                return
             return False
 
         self.jwt_token = resp["jwt"]
@@ -206,25 +208,33 @@ class PieFedClient(BaseClient):
         self.current_username_or_email = username_or_email
         self.current_password = password
 
-        return True
+        if return_dict:
+            return resp
+        else:
+            return True
 
     def is_logged_in(self) -> bool:
         return bool(self.jwt_token)
 
-    def log_out(self) -> bool:
+    def log_out(self, return_dict: bool = False) -> bool | dict | None:
         method = "POST"
 
         resp = self.request(method=method, endpoint="user/logout")
 
         if resp is None:
-            # Problem with the request that was suppressed, just return False
+            # Problem with the request that was suppressed
+            if return_dict:
+                return
             return False
 
         self.jwt_token = ""
         self.current_username_or_email = ""
         self.current_password = ""
 
-        return True
+        if return_dict:
+            return resp
+        else:
+            return True
 
     @property
     def nodeinfo(self) -> dict | None:
@@ -421,14 +431,16 @@ class AsyncPieFedClient(BaseClient):
     async def __aexit__(self, *args):
         await self.aclose()
 
-    async def log_in(self, username_or_email: str, password: str) -> bool:
+    async def log_in(self, username_or_email: str, password: str, return_dict: bool = False) -> bool | dict | None:
         payload = {"username": username_or_email, "password": password}
         method = "POST"
 
         resp = await self.request(method=method, endpoint="user/login", data=payload)
 
         if resp is None:
-            # Problem with the request that was suppressed, just return False
+            # Problem with the request that was suppressed
+            if return_dict:
+                return
             return False
 
         self.jwt_token = resp["jwt"]
@@ -436,25 +448,33 @@ class AsyncPieFedClient(BaseClient):
         self.current_username_or_email = username_or_email
         self.current_password = password
 
-        return True
+        if return_dict:
+            return resp
+        else:
+            return True
 
     async def is_logged_in(self) -> bool:
         return bool(self.jwt_token)
 
-    async def log_out(self) -> bool:
+    async def log_out(self, return_dict: bool = False) -> bool | dict | None:
         method = "POST"
 
         resp = await self.request(method=method, endpoint="user/logout")
 
         if resp is None:
-            # Problem with the request that was suppressed, just return False
+            # Problem with the request that was suppressed
+            if return_dict:
+                return
             return False
 
         self.jwt_token = ""
         self.current_username_or_email = ""
         self.current_password = ""
 
-        return True
+        if return_dict:
+            return resp
+        else:
+            return True
 
     @property
     async def nodeinfo(self) -> dict:
