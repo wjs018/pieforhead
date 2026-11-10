@@ -9,6 +9,7 @@ from .topic import Topic, TopicAsync
 from .admin import Admin, AdminAsync
 from .misc import Misc, MiscAsync
 from .user import User, UserAsync
+from .feed import Feed, FeedAsync
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ class PieFed:
         self.admin = Admin(client=self._client)
         self.misc = Misc(client=self._client)
         self.user = User(client=self._client)
+        self.feed = Feed(client=self._client)
 
     def __enter__(self):
         return self
@@ -125,6 +127,7 @@ class PieFedAsync:
         self.admin = AdminAsync(client=self._client)
         self.misc = MiscAsync(client=self._client)
         self.user = UserAsync(client=self._client)
+        self.feed = FeedAsync(client=self._client)
 
     async def __aenter__(self):
         return self
