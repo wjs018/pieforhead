@@ -96,6 +96,6 @@ This project is in an early stage. Here is a high level summary of where things 
 |    Community    |     ❌      |      ❌      |                                          |
 |      Feed       |     ✅      |      ✅      |                                          |
 |      Topic      |     ✅      |      ✅      |                                          |
-| Private Message |     ❌      |      ❌      |                                          |
+| Private Message |     ✅      |      ✅      |                                          |
 |      Admin      |     ✅      |      ✅      |                                          |
 |      Misc.      |     ✅      |      ✅      |                                          |
