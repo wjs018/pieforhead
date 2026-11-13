@@ -93,7 +93,7 @@ This project is in an early stage. Here is a high level summary of where things 
 |      User       |     ✅      |      ✅      | Register endpoint unimplemented          |
 |      Post       |     ❌      |      ❌      |                                          |
 |     Comment     |     ❌      |      ❌      |                                          |
-|    Community    |     ❌      |      ❌      |                                          |
+|    Community    |     ✅      |      ✅      |                                          |
 |      Feed       |     ✅      |      ✅      |                                          |
 |      Topic      |     ✅      |      ✅      |                                          |
 | Private Message |     ✅      |      ✅      |                                          |
