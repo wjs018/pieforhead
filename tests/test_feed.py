@@ -171,7 +171,7 @@ def test_list_defaults():
     feed, client = make_feed(response)
 
     # Check response
-    assert feed.list() == response
+    assert feed.list_feeds() == response
 
     # Check args
     client.request.assert_called_once_with(method="GET", endpoint="feed/list", params={})
@@ -182,7 +182,7 @@ def test_list_params():
     feed, client = make_feed(response)
 
     # Check response
-    assert feed.list(include_communities=False, mine_only=True) == response
+    assert feed.list_feeds(include_communities=False, mine_only=True) == response
 
     # Check args
     client.request.assert_called_once_with(

@@ -27,7 +27,7 @@ def test_list(include_communities: bool):
     topic, client = make_topic(response)
 
     # Check response
-    assert topic.list(include_communities=include_communities) == response
+    assert topic.list_topics(include_communities=include_communities) == response
 
     # Check args
     client.request.assert_called_once_with(
@@ -43,7 +43,7 @@ def test_list_defaults():
     topic, client = make_topic(response)
 
     # Check response
-    assert topic.list() == response
+    assert topic.list_topics() == response
 
     # Check args
     client.request.assert_called_once_with(
@@ -58,7 +58,7 @@ def test_list_handles_none():
     topic, client = make_topic(None)
 
     # Check response
-    assert topic.list() is None
+    assert topic.list_topics() is None
 
     # Check args
     client.request.assert_called_once_with(

@@ -105,7 +105,7 @@ class Community:
 
         return self._client.request(method="PUT", endpoint="community", data=data)
 
-    def list(
+    def list_communities(
         self,
         limit: int | None = None,
         page: int | None = None,
@@ -339,7 +339,7 @@ class CommunityAsync:
 
         return await self._client.request(method="PUT", endpoint="community", data=data)
 
-    async def list(
+    async def list_communities(
         self,
         limit: int | None = None,
         page: int | None = None,

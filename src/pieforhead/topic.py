@@ -7,7 +7,7 @@ class Topic:
     def __init__(self, client: PieFedClient):
         self._client = client
 
-    def list(self, include_communities: bool = True) -> dict | None:
+    def list_topics(self, include_communities: bool = True) -> dict | None:
         resp = self._client.request(
             method="GET",
             endpoint="topic/list",
@@ -23,7 +23,7 @@ class TopicAsync:
     def __init__(self, client: AsyncPieFedClient):
         self._client = client
 
-    async def list(self, include_communities: bool = True):
+    async def list_topics(self, include_communities: bool = True):
         resp = await self._client.request(
             method="GET",
             endpoint="topic/list",

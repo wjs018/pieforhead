@@ -220,7 +220,9 @@ def test_list_all_params():
         community, client = make_community(response)
 
         # Check response
-        assert await community.list(limit=20, page=2, show_nsfw=False, sort="New", type_="Local") == response
+        assert (
+            await community.list_communities(limit=20, page=2, show_nsfw=False, sort="New", type_="Local") == response
+        )
 
         # Check args
         client.request.assert_awaited_once_with(
@@ -239,7 +241,7 @@ def test_list_defaults():
         community, client = make_community(response)
 
         # Check response
-        assert await community.list() == response
+        assert await community.list_communities() == response
 
         # Check args
         client.request.assert_awaited_once_with(method="GET", endpoint="community/list", params={})

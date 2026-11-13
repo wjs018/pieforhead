@@ -115,7 +115,7 @@ class Feed:
 
         return self._client.request(method="PUT", endpoint="feed", data=data)
 
-    def list(self, include_communities: bool | None = None, mine_only: bool | None = None) -> dict | None:
+    def list_feeds(self, include_communities: bool | None = None, mine_only: bool | None = None) -> dict | None:
         params = {}
 
         if include_communities is not None:
@@ -255,7 +255,7 @@ class FeedAsync:
 
         return await self._client.request(method="PUT", endpoint="feed", data=data)
 
-    async def list(self, include_communities: bool | None = None, mine_only: bool | None = None) -> dict | None:
+    async def list_feeds(self, include_communities: bool | None = None, mine_only: bool | None = None) -> dict | None:
         params = {}
 
         if include_communities is not None:

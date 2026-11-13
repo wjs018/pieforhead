@@ -18,7 +18,7 @@ def test_list_all_params():
         private_message, client = make_private_message(response)
 
         # Check response
-        assert await private_message.list(page=2, limit=10, unread_only=False) == response
+        assert await private_message.list_messages(page=2, limit=10, unread_only=False) == response
 
         # Check args
         client.request.assert_awaited_once_with(
@@ -37,7 +37,7 @@ def test_list_defaults():
         private_message, client = make_private_message(response)
 
         # Check response
-        assert await private_message.list() == response
+        assert await private_message.list_messages() == response
 
         # Check args
         client.request.assert_awaited_once_with(method="GET", endpoint="private_message/list", params={})

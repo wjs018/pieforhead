@@ -7,7 +7,9 @@ class PrivateMessage:
     def __init__(self, client: PieFedClient):
         self._client = client
 
-    def list(self, page: int | None = None, limit: int | None = None, unread_only: bool | None = None) -> dict | None:
+    def list_messages(
+        self, page: int | None = None, limit: int | None = None, unread_only: bool | None = None
+    ) -> dict | None:
         params = {}
 
         if page is not None:
@@ -137,7 +139,7 @@ class PrivateMessageAsync:
     def __init__(self, client: AsyncPieFedClient):
         self._client = client
 
-    async def list(
+    async def list_messages(
         self,
         page: int | None = None,
         limit: int | None = None,
