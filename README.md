@@ -86,16 +86,16 @@ asyncio.run(main())
 
 This project is in an early stage. Here is a high level summary of where things stand with implementing the wrapper around different PieFed API endpoint groups:
 
-| Endpoint Group  | Sync Client | Async Client | Notes                                    |
-| :-------------: | :---------: | :----------: | :--------------------------------------- |
-|      Site       |     ✅      |      ✅      | Instance chooser endpoints unimplemented |
-|     Upload      |     ✅      |      ✅      |                                          |
-|      User       |     ✅      |      ✅      | Register endpoint unimplemented          |
-|      Post       |     ❌      |      ❌      |                                          |
-|     Comment     |     ❌      |      ❌      |                                          |
-|    Community    |     ✅      |      ✅      |                                          |
-|      Feed       |     ✅      |      ✅      |                                          |
-|      Topic      |     ✅      |      ✅      |                                          |
-| Private Message |     ✅      |      ✅      |                                          |
-|      Admin      |     ✅      |      ✅      |                                          |
-|      Misc.      |     ✅      |      ✅      |                                          |
+| Endpoint Group  | Sync Client | Async Client | Notes                                          |
+| :-------------: | :---------: | :----------: | :--------------------------------------------- |
+|      Site       |     ✅      |      ✅      | Instance chooser endpoints unimplemented       |
+|     Upload      |     ✅      |      ✅      |                                                |
+|      User       |     ✅      |      ✅      | Register endpoint unimplemented                |
+|      Post       |     ✅      |      ✅      | Experimental post/list2 endpoint unimplemented |
+|     Comment     |     ❌      |      ❌      |                                                |
+|    Community    |     ✅      |      ✅      |                                                |
+|      Feed       |     ✅      |      ✅      |                                                |
+|      Topic      |     ✅      |      ✅      |                                                |
+| Private Message |     ✅      |      ✅      |                                                |
+|      Admin      |     ✅      |      ✅      |                                                |
+|      Misc.      |     ✅      |      ✅      |                                                |
