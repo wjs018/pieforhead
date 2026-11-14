@@ -23,7 +23,7 @@ These snippets all do the same three things:
 Closing it manually using the `close` function:
 
 ```python
-from piefedhead import PieFed
+from pieforhead import PieFed
 
 piefed = PieFed("https://instance.tld")
 piefed.log_in("username", "password")
@@ -92,7 +92,7 @@ This project is in an early stage. Here is a high level summary of where things 
 |     Upload      |     ✅      |      ✅      |                                                |
 |      User       |     ✅      |      ✅      | Register endpoint unimplemented                |
 |      Post       |     ✅      |      ✅      | Experimental post/list2 endpoint unimplemented |
-|     Comment     |     ❌      |      ❌      |                                                |
+|     Comment     |     ✅      |      ✅      |                                                |
 |    Community    |     ✅      |      ✅      |                                                |
 |      Feed       |     ✅      |      ✅      |                                                |
 |      Topic      |     ✅      |      ✅      |                                                |
