@@ -37,7 +37,7 @@ def test_list(include_communities: bool):
     )
 
 
-# Check default value of include_communities
+# Check include_communities is omitted by default
 def test_list_defaults():
     response = {"topics": ["Test topic"]}
     topic, client = make_topic(response)
@@ -49,7 +49,7 @@ def test_list_defaults():
     client.request.assert_called_once_with(
         method="GET",
         endpoint="topic/list",
-        params={"include_communities": True},
+        params={},
     )
 
 
@@ -58,7 +58,7 @@ def test_list_handles_none():
     topic, client = make_topic(None)
 
     # Check response
-    assert topic.list_topics() is None
+    assert topic.list_topics(include_communities=True) is None
 
     # Check args
     client.request.assert_called_once_with(

@@ -7,24 +7,25 @@ class Topic:
     def __init__(self, client: PieFedClient):
         self._client = client
 
-    def list_topics(self, include_communities: bool = True) -> dict | None:
+    def list_topics(self, include_communities: bool | None = None) -> dict | None:
         """Get a list of topics on the instance.
 
         API endpoint: GET topic/list
 
         Args:
-            include_communities (bool, optional): Include the communities of the topics in the response. Defaults to
-                True.
+            include_communities (bool | None, optional): Include the communities of the topics in the response. Defaults
+                to None.
 
         Returns:
             dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
                 was raised and then subsequently ignored.
         """
-        resp = self._client.request(
-            method="GET",
-            endpoint="topic/list",
-            params={"include_communities": include_communities},
-        )
+        params = {}
+
+        if include_communities is not None:
+            params["include_communities"] = include_communities
+
+        resp = self._client.request(method="GET", endpoint="topic/list", params=params)
 
         return resp
 
@@ -52,24 +53,25 @@ class TopicAsync:
     def __init__(self, client: AsyncPieFedClient):
         self._client = client
 
-    async def list_topics(self, include_communities: bool = True) -> dict | None:
+    async def list_topics(self, include_communities: bool | None = None) -> dict | None:
         """Get a list of topics on the instance.
 
         API endpoint: GET topic/list
 
         Args:
-            include_communities (bool, optional): Include the communities of the topics in the response. Defaults to
-                True.
+            include_communities (bool | None, optional): Include the communities of the topics in the response. Defaults
+                to None.
 
         Returns:
             dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
                 was raised and then subsequently ignored.
         """
-        resp = await self._client.request(
-            method="GET",
-            endpoint="topic/list",
-            params={"include_communities": include_communities},
-        )
+        params = {}
+
+        if include_communities is not None:
+            params["include_communities"] = include_communities
+
+        resp = await self._client.request(method="GET", endpoint="topic/list", params=params)
 
         return resp
 
