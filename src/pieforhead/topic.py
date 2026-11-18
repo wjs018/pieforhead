@@ -52,7 +52,7 @@ class TopicAsync:
     def __init__(self, client: AsyncPieFedClient):
         self._client = client
 
-    async def list_topics(self, include_communities: bool = True):
+    async def list_topics(self, include_communities: bool = True) -> dict | None:
         """Get a list of topics on the instance.
 
         API endpoint: GET topic/list
