@@ -1552,7 +1552,7 @@ class UserAsync:
         else:
             return
 
-    async def get_captcha(self):
+    async def get_captcha(self) -> dict | None:
         """Get a captcha.
 
         API endpoint: GET user/get_captcha
