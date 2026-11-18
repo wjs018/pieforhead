@@ -1,6 +1,8 @@
 # pieforhead
 
-A python wrapper for the PieFed API supporting both synchronous and asynchronous usage. This is an early work in progress, and few endpoints are supported yet.
+A python wrapper for the PieFed API supporting both synchronous and asynchronous usage.
+
+See the [full docs here](https://wjs018.github.io/pieforhead/).
 
 ![pieforhead logo](logo.png)
 
@@ -26,7 +28,7 @@ Closing it manually using the `close` function:
 from pieforhead import PieFed
 
 piefed = PieFed("https://instance.tld")
-piefed.log_in("username", "password")
+piefed.login("username", "password")
 
 piefed.close()
 ```
@@ -36,19 +38,9 @@ Using a context manager (a `with` block):
 ```python
 # Inside a context manager
 with PieFed("https://instance.tld") as piefed:
-    piefed.log_in("username", "password")
+    piefed.login("username", "password")
 
 # The connection is closed after leaving the `with` block
-```
-
-Using a callback that ensures the `close` function is called when execution has ended:
-
-```python
-# Registering an event handler
-import atexit
-
-piefed = PieFed("https://instance.tld")
-atexit.register(piefed.close)  # Automatically closes the client at program termination
 ```
 
 ## Asynchronous Client Usage
@@ -61,7 +53,7 @@ Here is a snippet that does the same three actions as outlined above for the syn
 # Put things in an async function so that we can use the await keyword
 async def main():
     piefed_async = PieFedAsync("https://instance.tld")
-    await piefed_async.log_in("username", "password")  # Notice the await keyword
+    await piefed_async.login("username", "password")  # Notice the await keyword
 
     await piefed_async.close()
 
@@ -74,7 +66,7 @@ Similar to the synchronous client, you can also use a context handler to automat
 ```python
 async def main():
     async with PieFedAsync("https://instance.tld") as piefed_async:
-        await piefed_async.log_in("username", "password")
+        await piefed_async.login("username", "password")
 
     # Client is closed automatically once outside the context handler
 
@@ -84,7 +76,7 @@ asyncio.run(main())
 
 ## Endpoint Coverage
 
-This project is in an early stage. Here is a high level summary of where things stand with implementing the wrapper around different PieFed API endpoint groups:
+Here is a high level summary of where things stand with implementing the wrapper around different PieFed API endpoint groups:
 
 | Endpoint Group  | Sync Client | Async Client | Notes                                          |
 | :-------------: | :---------: | :----------: | :--------------------------------------------- |
