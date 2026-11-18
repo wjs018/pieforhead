@@ -51,8 +51,26 @@ class PieFed:
     def __enter__(self):
         return self
 
+    def login(self, username_or_email: str, password: str) -> bool:
+        """Log into an instance.
+
+        Identical to the log_in function.
+
+        API endpoint: POST user/login
+
+        Args:
+            username_or_email (str): Username or email to log in with (case-insensitive).
+            password (str): Password for authentication.
+
+        Returns:
+            bool: Returns True if login was successful.
+        """
+        return self.log_in(username_or_email, password)
+
     def log_in(self, username_or_email: str, password: str) -> bool:
         """Log into an instance.
+
+        Identical to the login function.
 
         API endpoint: POST user/login
 
@@ -267,8 +285,26 @@ class PieFedAsync:
     async def __aenter__(self):
         return self
 
+    async def login(self, username_or_email: str, password: str) -> bool:
+        """Log into an instance.
+
+        Identical to the log_in function.
+
+        API endpoint: POST user/login
+
+        Args:
+            username_or_email (str): Username or email to log in with (case-insensitive).
+            password (str): Password for authentication.
+
+        Returns:
+            bool: Returns True if login was successful.
+        """
+        return self.log_in(username_or_email, password)
+
     async def log_in(self, username_or_email: str, password: str) -> bool:
         """Log into an instance.
+
+        Identical to the login function.
 
         API endpoint: POST user/login
 
