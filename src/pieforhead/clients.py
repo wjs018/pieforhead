@@ -35,9 +35,10 @@ class BaseClient:
         """Constructor for base client class.
 
         Args:
-            instance_url str: url of the piefed instance e.g. https://site.tld
-            timeout (float, optional): Timeout value for requests. Defaults to 5.0.
+            instance_url (str): url of the piefed instance e.g. https://site.tld
+            timeout (float, optional): Timeout value for requests.. Defaults to 5.0.
             api_version (str, optional): Version of the PieFed API. Defaults to "alpha".
+            raise_exceptions (bool, optional): Raise exceptions or suppress them for bad requests. Defaults to True.
         """
         self.instance_url = instance_url
         self.timeout = timeout
@@ -45,7 +46,17 @@ class BaseClient:
         self.raise_exceptions = raise_exceptions
         self.headers = {"User-Agent": f"pieforhead/{VERSION}", "Accept": "application/json"}
 
-    def _request_error(self, message: str, error: Exception) -> dict | None:
+    def _request_error(self, message: str, error: Exception) -> None:
+        """Function to determine how to handle an exception due to a bad request.
+
+        Args:
+            message (str): Message to accompany the exception.
+            error (Exception): The Exception that is potentially being raised.
+
+        Raises:
+            PieFedClientException: Exception class for the client. Should include the error message returned by the
+                server if applicable.
+        """
         # Always log the error
         logger.error(message)
 
@@ -73,7 +84,7 @@ class PieFedClient(BaseClient):
         """Constructor for Synchronous client.
 
         Args:
-            instance_url str: url of the piefed instance e.g. https://site.tld
+            instance_url (str): url of the piefed instance e.g. https://site.tld
             timeout (float, optional): Timeout value for requests. Defaults to 5.0.
             api_version (str, optional): Version of the PieFed API. Defaults to "alpha".
             existing_client (httpx.Client, optional): Pass an httpx.Client object to reuse it (mainly used for tests).
@@ -111,9 +122,6 @@ class PieFedClient(BaseClient):
             params (dict, optional): url parameters for the request (only for "GET") Defaults to {}.
             data (dict, optional): json payload for the request ("POST" and "PUT") Defaults to {}.
             files (dict, optional): multipart files to include with the request.
-
-        Raises:
-            PieFedClientException: should also include error message returned from server if available
 
         Returns:
             dict | bool | None : deserialized json returned by the server on successful request with returned json.
@@ -189,9 +197,23 @@ class PieFedClient(BaseClient):
             return self._request_error(message=message, error=e)
 
     def close(self):
+        """Closes the client and any connections."""
         self._client.close()
 
     def log_in(self, username_or_email: str, password: str, return_dict: bool = False) -> bool | dict | None:
+        """Log the client into a PieFed instance.
+
+        Args:
+            username_or_email (str): username or email to log in with.
+            password (str): password for authentication.
+            return_dict (bool, optional): If True, will return a dict of the response by the server instead of a bool
+                True that indicates logging in successfully. Defaults to False.
+
+        Returns:
+            bool | dict | None: bool response indicates success or failure of logging in. dict response happens if
+                return_dict=True. None response when an exception is suppressed.
+        """
+
         payload = {"username": username_or_email, "password": password}
         method = "POST"
 
@@ -214,9 +236,23 @@ class PieFedClient(BaseClient):
             return True
 
     def is_logged_in(self) -> bool:
+        """Checks if the client has login credentials saved.
+
+        Returns:
+            bool: True if login credentials are saved.
+        """
         return bool(self.jwt_token)
 
     def log_out(self, return_dict: bool = False) -> bool | dict | None:
+        """Logs the client out and invalidates the user's token.
+
+        Args:
+            return_dict (bool, optional): If True, return the json returned by the server as a dict. Defaults to False.
+
+        Returns:
+            bool | dict | None: Returns True if logged out successfully (alternatively returns a dict if
+                return_dict=True). None is returned when an exception is suppressed.
+        """
         method = "POST"
 
         resp = self.request(method=method, endpoint="user/logout")
@@ -241,7 +277,8 @@ class PieFedClient(BaseClient):
         """Dict containing the instance's nodeinfo output.
 
         Returns:
-            dict: deserialized copy of the instance's nodeinfo or None if the request failed and exception ignored
+            dict | None: deserialized copy of the instance's nodeinfo or None if the request failed and exception
+                ignored.
         """
         if self._nodeinfo:
             return self._nodeinfo
@@ -259,8 +296,8 @@ class PieFedClient(BaseClient):
         """The instance's software version from the nodeinfo.
 
         Returns:
-            semver.Version: software version of the piefed instance or None if something failed and the exception was
-                suppressed
+            semver.Version | None: software version of the piefed instance or None if something failed and the exception
+                was suppressed.
         """
 
         current_nodeinfo = self.nodeinfo
@@ -304,12 +341,12 @@ class AsyncPieFedClient(BaseClient):
         """Constructor for Asynchronous client.
 
         Args:
-            instance_url str: url of the piefed instance e.g. https://site.tld
+            instance_url (str): url of the piefed instance e.g. https://site.tld
             timeout (float, optional): Timeout value for requests. Defaults to 5.0.
             api_version (str, optional): Version of the PieFed API. Defaults to "alpha".
-            existing_client (httpx.Client, optional): Pass an httpx.Client object to reuse it (mainly used for tests).
-                Defaults to None.
-            raise_exceptions: (bool, optional): Whether to raise exceptions on request errors or just return None.
+            existing_client (httpx.AsyncClient, optional): Pass an httpx.AsyncClient object to reuse it (mainly used for
+                tests). Defaults to None.
+            raise_exceptions (bool, optional): Whether to raise exceptions on request errors or just return None.
                 Defaults to True.
         """
         super().__init__(
@@ -334,7 +371,7 @@ class AsyncPieFedClient(BaseClient):
         data: dict = {},
         files: dict | None = None,
     ) -> dict | bool | None:
-        """Async function to handle network requests.
+        """Asynchronously handles network requests.
 
         Args:
             method (str): HTTP method for the request, one of ["GET", "POST", "PUT"]
@@ -342,9 +379,6 @@ class AsyncPieFedClient(BaseClient):
             params (dict, optional): url parameters for the request (only for "GET") Defaults to {}.
             data (dict, optional): json payload for the request ("POST" and "PUT") Defaults to {}.
             files (dict, optional): multipart files to include with the request.
-
-        Raises:
-            PieFedClientException: should also include error message returned from server if available
 
         Returns:
             dict | bool | None : deserialized json returned by the server on successful request with returned json.
@@ -420,9 +454,11 @@ class AsyncPieFedClient(BaseClient):
             return self._request_error(message=message, error=e)
 
     async def aclose(self):
+        """Closes the client and any connections."""
         await self._client.aclose()
 
     async def close(self):
+        """Closes the client and any connections."""
         await self.aclose()
 
     async def __aenter__(self):
@@ -432,6 +468,18 @@ class AsyncPieFedClient(BaseClient):
         await self.aclose()
 
     async def log_in(self, username_or_email: str, password: str, return_dict: bool = False) -> bool | dict | None:
+        """Log the client into a PieFed instance.
+
+        Args:
+            username_or_email (str): username or email to log in with.
+            password (str): password for authentication.
+            return_dict (bool, optional): If True, will return a dict of the response by the server instead of a bool
+                True that indicates logging in successfully. Defaults to False.
+
+        Returns:
+            bool | dict | None: bool response indicates success or failure of logging in. dict response happens if
+                return_dict=True. None response when an exception is suppressed.
+        """
         payload = {"username": username_or_email, "password": password}
         method = "POST"
 
@@ -454,9 +502,23 @@ class AsyncPieFedClient(BaseClient):
             return True
 
     async def is_logged_in(self) -> bool:
+        """Checks if the client has login credentials saved.
+
+        Returns:
+            bool: True if login credentials are saved.
+        """
         return bool(self.jwt_token)
 
     async def log_out(self, return_dict: bool = False) -> bool | dict | None:
+        """Logs the client out and invalidates the user's token.
+
+        Args:
+            return_dict (bool, optional): If True, return the json returned by the server as a dict. Defaults to False.
+
+        Returns:
+            bool | dict | None: Returns True if logged out successfully (alternatively returns a dict if
+                return_dict=True). None is returned when an exception is suppressed.
+        """
         method = "POST"
 
         resp = await self.request(method=method, endpoint="user/logout")
@@ -481,7 +543,8 @@ class AsyncPieFedClient(BaseClient):
         """Dict containing the instance's nodeinfo output.
 
         Returns:
-            dict: deserialized copy of the instance's nodeinfo or None if the request failed and exception ignored
+            dict | None: deserialized copy of the instance's nodeinfo or None if the request failed and exception
+                ignored.
         """
         if self._nodeinfo:
             return self._nodeinfo
@@ -495,11 +558,12 @@ class AsyncPieFedClient(BaseClient):
         return self._nodeinfo if self._nodeinfo else None
 
     @property
-    async def instance_version(self) -> semver.Version:
+    async def instance_version(self) -> semver.Version | None:
         """The instance's software version from the nodeinfo.
 
         Returns:
-            semver.Version: software version of the piefed instance
+            semver.Version | None: software version of the piefed instance or None if something failed and the exception
+                was suppressed.
         """
 
         current_nodeinfo = await self.nodeinfo

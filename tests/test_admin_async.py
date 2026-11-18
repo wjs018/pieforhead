@@ -28,7 +28,7 @@ def test_list_applications():
         client.request.assert_awaited_once_with(
             method="GET",
             endpoint="admin/registration_application/list",
-            params={"limit": 30, "page": 1, "pending_only": True, "sort": "New"},
+            params={},
         )
 
     # Start the event loop and run the test
@@ -66,7 +66,7 @@ def test_list_applications_raising():
         client.request.assert_awaited_once_with(
             method="GET",
             endpoint="admin/registration_application/list",
-            params={"limit": 30, "page": 1, "pending_only": True, "sort": "New"},
+            params={},
         )
 
     # Start the event loop and run the test

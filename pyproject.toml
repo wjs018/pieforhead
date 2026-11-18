@@ -19,9 +19,20 @@ classifiers = [
 ]
 license = "Unlicense"
 license-files = ["LICENSE"]
+
 dependencies =[
   "httpx",
   "semver",
+]
+
+[project.optional-dependencies]
+tests = [
+  "pytest",
+]
+
+docs = [
+  "zensical",
+  "mkdocstrings[python]",
 ]
 
 [tool.hatch.version]

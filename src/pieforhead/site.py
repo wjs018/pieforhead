@@ -11,6 +11,8 @@ class Site:
     def get(self) -> dict | None:
         """Dumps value returned from site endpoint into a dict.
 
+        API endpoint: GET site
+
         Returns:
             dict | None : contents of GET site endpoint, None if a suppressed error
         """
@@ -20,6 +22,8 @@ class Site:
     def version(self) -> dict | None:
         """Fetch software version from site/version endpoint.
 
+        API endpoint: GET site/version
+
         Returns:
             dict | None : response dict or none if an error was suppressed
         """
@@ -28,6 +32,8 @@ class Site:
 
     def block(self, block: bool, instance_id: int) -> dict | None:
         """Block or unblock an instance with a given id.
+
+        API endpoint: POST site/block
 
         Args:
             block (bool): True = block, False = unblock
@@ -41,12 +47,22 @@ class Site:
         return self._client.request(method="POST", endpoint="site/block", data=payload)
 
     def instance_chooser(self):
+        """Instance chooser information.
+
+        Raises:
+            NotImplementedError: Not implemented.
+        """
         if self._client.raise_exceptions:
             raise NotImplementedError
         else:
             return
 
     def instance_chooser_search(self):
+        """Instance chooser search info.
+
+        Raises:
+            NotImplementedError: Not implemented.
+        """
         if self._client.raise_exceptions:
             raise NotImplementedError
         else:
@@ -62,6 +78,8 @@ class SiteAsync:
     async def get(self) -> dict | None:
         """Dumps value returned from site endpoint into a dict.
 
+        API endpoint: GET site
+
         Returns:
             dict: contents of GET site endpoint
         """
@@ -71,6 +89,8 @@ class SiteAsync:
     async def version(self) -> dict | None:
         """Fetch software version from site/version endpoint.
 
+        API endpoint: GET site/version
+
         Returns:
             dict | None : response dict or None if there was a suppressed error
         """
@@ -79,6 +99,8 @@ class SiteAsync:
 
     async def block(self, block: bool, instance_id: int) -> dict | None:
         """Block or unblock an instance with a given id.
+
+        API endpoint: POST site/block
 
         Args:
             block (bool): True = block, False = unblock
@@ -92,12 +114,22 @@ class SiteAsync:
         return await self._client.request(method="POST", endpoint="site/block", data=payload)
 
     async def instance_chooser(self):
+        """Instance chooser information.
+
+        Raises:
+            NotImplementedError: Not implemented.
+        """
         if self._client.raise_exceptions:
             raise NotImplementedError
         else:
             return
 
     async def instance_chooser_search(self):
+        """Instance chooser search info.
+
+        Raises:
+            NotImplementedError: Not implemented.
+        """
         if self._client.raise_exceptions:
             raise NotImplementedError
         else:

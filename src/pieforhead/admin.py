@@ -10,36 +10,43 @@ class Admin:
 
     def list_applications(
         self,
-        limit: int = 30,
-        page: int = 1,
-        pending_only: bool = True,
-        sort: str = "New",
+        limit: int | None = None,
+        page: int | None = None,
+        pending_only: bool | None = None,
+        sort: str | None = None,
     ) -> dict | None:
-        """List applications to joint the instance.
+        """List applications to join the instance.
+
+        API endpoint: GET admin/registration_application/list
 
         Args:
-            limit (int, optional): Max number of applications to return. Defaults to 30.
-            page (int, optional): Page of results to request. Defaults to 1.
-            pending_only (bool, optional): Only return applications pending a decision. Defaults to True.
-            sort (str, optional): One of "Old" or "New". Defaults to "New".
+            limit (int | None, optional): Max number of applications to return. Defaults to None.
+            page (int | None, optional): Page of results to request. Defaults to None.
+            pending_only (bool | None, optional): Only return applications pending a decision. Defaults to None.
+            sort (str | None, optional): One of "Old" or "New". Defaults to None.
 
         Returns:
             dict | None: Returns server json if request successful. None if there was an error but exceptions were
                 ignored.
         """
 
-        params = {"limit": limit, "page": page, "pending_only": pending_only, "sort": sort}
+        params = {}
 
-        resp = self._client.request(method="GET", endpoint="admin/registration_application/list", params=params)
+        if limit is not None:
+            params["limit"] = limit
+        if page is not None:
+            params["page"] = page
+        if pending_only is not None:
+            params["pending_only"] = pending_only
+        if sort is not None:
+            params["sort"] = sort
 
-        if resp is None:
-            # Some problem with the request, but exceptions are suppressed
-            return
-
-        return resp
+        return self._client.request(method="GET", endpoint="admin/registration_application/list", params=params)
 
     def process_application(self, approve: bool, new_user_id: int) -> bool | None:
         """Approve or reject an application.
+
+        API endpoint: PUT admin/registration_application/approve
 
         Args:
             approve (bool): True to approve, False to reject.
@@ -78,36 +85,42 @@ class AdminAsync:
 
     async def list_applications(
         self,
-        limit: int = 30,
-        page: int = 1,
-        pending_only: bool = True,
-        sort: str = "New",
+        limit: int | None = None,
+        page: int | None = None,
+        pending_only: bool | None = None,
+        sort: str | None = None,
     ) -> dict | None:
-        """List applications to joint the instance.
+        """List applications to join the instance.
+
+        API endpoint: GET admin/registration_application/list
 
         Args:
-            limit (int, optional): Max number of applications to return. Defaults to 30.
-            page (int, optional): Page of results to request. Defaults to 1.
-            pending_only (bool, optional): Only return applications pending a decision. Defaults to True.
-            sort (str, optional): One of "Old" or "New". Defaults to "New".
+            limit (int | None, optional): Max number of applications to return. Defaults to None.
+            page (int | None, optional): Page of results to request. Defaults to None.
+            pending_only (bool | None, optional): Only return applications pending a decision. Defaults to None.
+            sort (str | None, optional): One of "Old" or "New". Defaults to None.
 
         Returns:
             dict | None: Returns server json if request successful. None if there was an error but exceptions were
                 ignored.
         """
 
-        params = {"limit": limit, "page": page, "pending_only": pending_only, "sort": sort}
+        params = {}
+        if limit is not None:
+            params["limit"] = limit
+        if page is not None:
+            params["page"] = page
+        if pending_only is not None:
+            params["pending_only"] = pending_only
+        if sort is not None:
+            params["sort"] = sort
 
-        resp = await self._client.request(method="GET", endpoint="admin/registration_application/list", params=params)
-
-        if resp is None:
-            # Some problem with the request, but exceptions are suppressed
-            return
-
-        return resp
+        return await self._client.request(method="GET", endpoint="admin/registration_application/list", params=params)
 
     async def process_application(self, approve: bool, new_user_id: int) -> bool | None:
         """Approve or reject an application.
+
+        API endpoint: PUT admin/registration_application/approve
 
         Args:
             approve (bool): True to approve, False to reject.

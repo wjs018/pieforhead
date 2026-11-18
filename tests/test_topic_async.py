@@ -79,3 +79,23 @@ def test_list_handles_none():
 
     # Start the event loop and run the test
     asyncio.run(run_test())
+
+
+@pytest.mark.parametrize("subscribe", [True, False])
+def test_subscribe(subscribe: bool):
+    async def run_test():
+        response = {"topic_view": {"subscribed": subscribe}}
+        topic, client = make_topic(response)
+
+        # Check response
+        assert await topic.subscribe(topic_id=42, subscribe=subscribe) == response
+
+        # Check args
+        client.request.assert_awaited_once_with(
+            method="PUT",
+            endpoint="topic/subscribe",
+            data={"topic_id": 42, "subscribe": subscribe},
+        )
+
+    # Start the event loop and run the test
+    asyncio.run(run_test())

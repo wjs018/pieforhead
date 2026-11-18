@@ -8,6 +8,18 @@ class Feed:
         self._client = client
 
     def get(self, feed_id: int | None = None, feed_name: str | None = None) -> dict | None:
+        """Get the details for a single feed.
+
+        API endpoint: GET feed
+
+        Args:
+            feed_id (int | None, optional): Feed id of the feed being fetched. Defaults to None.
+            feed_name (str | None, optional): Name of the feed to fetch. Defaults to None.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         params = {}
 
         if feed_id is not None:
@@ -32,6 +44,29 @@ class Feed:
         show_child_posts: bool | None = None,
         parent_feed_id: int | None = None,
     ) -> dict | None:
+        """Create a new feed.
+
+        API endpoint: POST feed
+
+        Args:
+            name (str): url-safe name of the feed.
+            title (str): Display title of the feed.
+            description (str | None, optional): Sidebar content of the feed in markdown. Defaults to None.
+            icon_url (str | None, optional): URL of an image to use as the feed icon. Defaults to None.
+            banner_url (str | None, optional): URL of an image to use as the feed banner. Defaults to None.
+            nsfw (bool | None, optional): Mark feed content as NSFW. Defaults to None.
+            nsfl (bool | None, optional): Mark feed content as NSFL. Defaults to None.
+            public (bool | None, optional): True if feed is public. False if private. Defaults to None.
+            communities (str | None, optional): Newline-separated list of communities in the feed. Defaults to None.
+            is_instance_feed (bool | None, optional): (Admins only) List feed in instance-level Explore menu. Defaults
+                to None.
+            show_child_posts (bool | None, optional): Show posts from children feeds in this feed. Defaults to None.
+            parent_feed_id (int | None, optional): Feed id of the parent feed. Defaults to None.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         data = {"name": name, "title": title}
 
         if description is not None:
@@ -73,6 +108,32 @@ class Feed:
         show_child_posts: bool | None = None,
         parent_feed_id: int | None = None,
     ) -> dict | None:
+        """Edit a feed.
+
+        API endpoint: PUT feed
+
+        Args:
+            feed_id (int): Feed id of the feed being edited.
+            url (str | None, optional): URL of the feed being edited. Defaults to None.
+            title (str | None, optional): Display title of the feed. Defaults to None.
+            description (str | None, optional): Sidebar content of the feed in markdown. Defaults to None.
+            icon_url (str | None, optional): URL of an image to use as the feed icon. Set to an empty string to remove.
+                Defaults to None.
+            banner_url (str | None, optional): URL of an image to use as the feed banner. Set to an empty string to
+                remove. Defaults to None.
+            nsfw (bool | None, optional): Mark feed content as NSFW. Defaults to None.
+            nsfl (bool | None, optional): Mark feed content as NSFL. Defaults to None.
+            public (bool | None, optional): True if feed is public. False if private. Defaults to None.
+            communities (str | None, optional): Newline-separated list of communities in the feed. Defaults to None.
+            is_instance_feed (bool | None, optional): (Admins only) List feed in instance-level Explore menu. Defaults
+                to None.
+            show_child_posts (bool | None, optional): Show posts from children feeds in this feed. Defaults to None.
+            parent_feed_id (int | None, optional): Feed id of the parent feed. Defaults to None.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         data = {"feed_id": feed_id}
 
         if url is not None:
@@ -116,6 +177,19 @@ class Feed:
         return self._client.request(method="PUT", endpoint="feed", data=data)
 
     def list_feeds(self, include_communities: bool | None = None, mine_only: bool | None = None) -> dict | None:
+        """Get a list of feeds.
+
+        API endpoint: GET feed/list
+
+        Args:
+            include_communities (bool | None, optional): Include the list of communities in each feed as part of the
+                response. Defaults to None.
+            mine_only (bool | None, optional): Only return feeds owned by the authorized user. Defaults to None.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         params = {}
 
         if include_communities is not None:
@@ -126,16 +200,52 @@ class Feed:
         return self._client.request(method="GET", endpoint="feed/list", params=params)
 
     def follow(self, feed_id: int, follow: bool) -> dict | None:
+        """Follow or leave a feed.
+
+        API endpoint: POST feed/follow
+
+        Args:
+            feed_id (int): Feed id of the feed being joined/left.
+            follow (bool): True to join the feed. False to leave it.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         data = {"feed_id": feed_id, "follow": follow}
 
         return self._client.request(method="POST", endpoint="feed/follow", data=data)
 
     def delete(self, feed_id: int, deleted: bool) -> dict | None:
+        """Delete or restore a feed.
+
+        API endpoint: POST feed/delete
+
+        Args:
+            feed_id (int): Feed id of the feed being deleted/restored.
+            deleted (bool): True to delete the feed. False to restore it.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         data = {"feed_id": feed_id, "deleted": deleted}
 
         return self._client.request(method="POST", endpoint="feed/delete", data=data)
 
     def subscribe(self, feed_id: int, subscribed: bool) -> dict | None:
+        """Get notifications for new posts in a feed.
+
+        API endpoint: PUT feed/subscribe
+
+        Args:
+            feed_id (int): Feed id of the feed to receive notifications for.
+            subscribed (bool): True to get notifications for a feed. False to stop.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         data = {"feed_id": feed_id, "subscribe": subscribed}
 
         return self._client.request(method="PUT", endpoint="feed/subscribe", data=data)
@@ -148,6 +258,18 @@ class FeedAsync:
         self._client = client
 
     async def get(self, feed_id: int | None = None, feed_name: str | None = None) -> dict | None:
+        """Get the details for a single feed.
+
+        API endpoint: GET feed
+
+        Args:
+            feed_id (int | None, optional): Feed id of the feed being fetched. Defaults to None.
+            feed_name (str | None, optional): Name of the feed to fetch. Defaults to None.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         params = {}
 
         if feed_id is not None:
@@ -172,6 +294,29 @@ class FeedAsync:
         show_child_posts: bool | None = None,
         parent_feed_id: int | None = None,
     ) -> dict | None:
+        """Create a new feed.
+
+        API endpoint: POST feed
+
+        Args:
+            name (str): url-safe name of the feed.
+            title (str): Display title of the feed.
+            description (str | None, optional): Sidebar content of the feed in markdown. Defaults to None.
+            icon_url (str | None, optional): URL of an image to use as the feed icon. Defaults to None.
+            banner_url (str | None, optional): URL of an image to use as the feed banner. Defaults to None.
+            nsfw (bool | None, optional): Mark feed content as NSFW. Defaults to None.
+            nsfl (bool | None, optional): Mark feed content as NSFL. Defaults to None.
+            public (bool | None, optional): True if feed is public. False if private. Defaults to None.
+            communities (str | None, optional): Newline-separated list of communities in the feed. Defaults to None.
+            is_instance_feed (bool | None, optional): (Admins only) List feed in instance-level Explore menu. Defaults
+                to None.
+            show_child_posts (bool | None, optional): Show posts from children feeds in this feed. Defaults to None.
+            parent_feed_id (int | None, optional): Feed id of the parent feed. Defaults to None.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         data = {"name": name, "title": title}
 
         if description is not None:
@@ -213,6 +358,32 @@ class FeedAsync:
         show_child_posts: bool | None = None,
         parent_feed_id: int | None = None,
     ) -> dict | None:
+        """Edit a feed.
+
+        API endpoint: PUT feed
+
+        Args:
+            feed_id (int): Feed id of the feed being edited.
+            url (str | None, optional): URL of the feed being edited. Defaults to None.
+            title (str | None, optional): Display title of the feed. Defaults to None.
+            description (str | None, optional): Sidebar content of the feed in markdown. Defaults to None.
+            icon_url (str | None, optional): URL of an image to use as the feed icon. Set to an empty string to remove.
+                Defaults to None.
+            banner_url (str | None, optional): URL of an image to use as the feed banner. Set to an empty string to
+                remove. Defaults to None.
+            nsfw (bool | None, optional): Mark feed content as NSFW. Defaults to None.
+            nsfl (bool | None, optional): Mark feed content as NSFL. Defaults to None.
+            public (bool | None, optional): True if feed is public. False if private. Defaults to None.
+            communities (str | None, optional): Newline-separated list of communities in the feed. Defaults to None.
+            is_instance_feed (bool | None, optional): (Admins only) List feed in instance-level Explore menu. Defaults
+                to None.
+            show_child_posts (bool | None, optional): Show posts from children feeds in this feed. Defaults to None.
+            parent_feed_id (int | None, optional): Feed id of the parent feed. Defaults to None.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         data = {"feed_id": feed_id}
 
         if url is not None:
@@ -256,6 +427,19 @@ class FeedAsync:
         return await self._client.request(method="PUT", endpoint="feed", data=data)
 
     async def list_feeds(self, include_communities: bool | None = None, mine_only: bool | None = None) -> dict | None:
+        """Get a list of feeds.
+
+        API endpoint: GET feed/list
+
+        Args:
+            include_communities (bool | None, optional): Include the list of communities in each feed as part of the
+                response. Defaults to None.
+            mine_only (bool | None, optional): Only return feeds owned by the authorized user. Defaults to None.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         params = {}
 
         if include_communities is not None:
@@ -266,16 +450,52 @@ class FeedAsync:
         return await self._client.request(method="GET", endpoint="feed/list", params=params)
 
     async def follow(self, feed_id: int, follow: bool) -> dict | None:
+        """Follow or leave a feed.
+
+        API endpoint: POST feed/follow
+
+        Args:
+            feed_id (int): Feed id of the feed being joined/left.
+            follow (bool): True to join the feed. False to leave it.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         data = {"feed_id": feed_id, "follow": follow}
 
         return await self._client.request(method="POST", endpoint="feed/follow", data=data)
 
     async def delete(self, feed_id: int, deleted: bool) -> dict | None:
+        """Delete or restore a feed.
+
+        API endpoint: POST feed/delete
+
+        Args:
+            feed_id (int): Feed id of the feed being deleted/restored.
+            deleted (bool): True to delete the feed. False to restore it.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         data = {"feed_id": feed_id, "deleted": deleted}
 
         return await self._client.request(method="POST", endpoint="feed/delete", data=data)
 
     async def subscribe(self, feed_id: int, subscribed: bool) -> dict | None:
+        """Get notifications for new posts in a feed.
+
+        API endpoint: PUT feed/subscribe
+
+        Args:
+            feed_id (int): Feed id of the feed to receive notifications for.
+            subscribed (bool): True to get notifications for a feed. False to stop.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         data = {"feed_id": feed_id, "subscribe": subscribed}
 
         return await self._client.request(method="PUT", endpoint="feed/subscribe", data=data)

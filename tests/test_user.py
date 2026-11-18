@@ -288,14 +288,19 @@ def test_feed_endpoints(method_name: str):
     response = {"next_page": "2"}
     user, client = make_user(response)
 
+    if method_name != "media":
+        params = {"limit": 20, "page": 2, "sort": "New", "unread_only": False}
+    else:
+        params = {"limit": 20, "page": 2}
+
     # Check response
-    assert getattr(user, method_name)(limit=20, page=2, sort="New", unread_only=False) == response
+    assert getattr(user, method_name)(**params) == response
 
     # Check args
     client.request.assert_called_once_with(
         method="GET",
         endpoint=f"user/{method_name}",
-        params={"limit": 20, "page": 2, "sort": "New", "unread_only": False},
+        params=params,
     )
 
 

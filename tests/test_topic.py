@@ -66,3 +66,19 @@ def test_list_handles_none():
         endpoint="topic/list",
         params={"include_communities": True},
     )
+
+
+@pytest.mark.parametrize("subscribe", [True, False])
+def test_subscribe(subscribe: bool):
+    response = {"topic_view": {"subscribed": subscribe}}
+    topic, client = make_topic(response)
+
+    # Check response
+    assert topic.subscribe(topic_id=42, subscribe=subscribe) == response
+
+    # Check args
+    client.request.assert_called_once_with(
+        method="PUT",
+        endpoint="topic/subscribe",
+        data={"topic_id": 42, "subscribe": subscribe},
+    )

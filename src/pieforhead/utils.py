@@ -5,6 +5,8 @@ __version__ = "0.0.7"
 
 
 class ExtraField(TypedDict):
+    """Class used for type hinting extra fields."""
+
     id: int | None
     label: str | None
     text: str | None

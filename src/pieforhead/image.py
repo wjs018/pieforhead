@@ -20,9 +20,11 @@ class Image:
     ) -> dict | None:
         """General function for uploading an image.
 
+        API endpoint: POST upload/image
+
         Args:
-            image (str | BinaryIO | PathLike | tuple[str, bytes  |  bytearray, str]): image to upload. Tuple argument
-                must have form suitable for httpx.request, meaning that it is of the form:
+            image (str | BinaryIO | PathLike | tuple[str, bytes  |  bytearray, str]): image to upload. If the argument
+                is a tuple, it must have a form suitable for httpx.request, meaning that it is of the form:
                 (filename, image_bytes, mime_type).
             other_endpoint (str | None, optional): Used to divert request to one of the other upload endpoints.
                 Defaults to None.
@@ -31,8 +33,8 @@ class Image:
             ImageException: raised if image type isn't understood or if unknown endpoint is provided
 
         Returns:
-            dict | None: returns dict if successful and None if there is an error and exceptions were suppressed by the
-                client.
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
         """
 
         opened_file = False
@@ -76,16 +78,40 @@ class Image:
         self,
         image: str | BinaryIO | PathLike | tuple[str, bytes | bytearray, str],
     ) -> dict | None:
+        """Upload an image for community use.
+
+        API endpoint: POST upload/community_image
+
+        Args:
+            image (str | BinaryIO | PathLike | tuple[str, bytes  |  bytearray, str]): Image to upload.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         return self.upload(image=image, other_endpoint="community")
 
     def upload_user_image(
         self,
         image: str | BinaryIO | PathLike | tuple[str, bytes | bytearray, str],
     ) -> dict | None:
+        """Upload an image for use by a user.
+
+        API endpoint: POST upload/user_image
+
+        Args:
+            image (str | BinaryIO | PathLike | tuple[str, bytes  |  bytearray, str]): Image to upload.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         return self.upload(image=image, other_endpoint="user")
 
     def delete(self, url: str) -> dict | None:
         """Delete an uploaded image by providing its url.
+
+        API endpoint: POST image/delete
 
         Args:
             url (str): url of the uploaded image to delete
@@ -109,9 +135,11 @@ class ImageAsync:
     ) -> dict | None:
         """General function for uploading an image.
 
+        API endpoint: POST upload/image
+
         Args:
-            image (str | BinaryIO | PathLike | tuple[str, bytes  |  bytearray, str]): image to upload. Tuple argument
-                must have form suitable for httpx.request, meaning that it is of the form:
+            image (str | BinaryIO | PathLike | tuple[str, bytes  |  bytearray, str]): image to upload. If the argument
+                is a tuple, it must have a form suitable for httpx.request, meaning that it is of the form:
                 (filename, image_bytes, mime_type).
             other_endpoint (str | None, optional): Used to divert request to one of the other upload endpoints.
                 Defaults to None.
@@ -120,8 +148,8 @@ class ImageAsync:
             ImageException: raised if image type isn't understood or if unknown endpoint is provided
 
         Returns:
-            dict | None: returns dict if successful and None if there is an error and exceptions were suppressed by the
-                client.
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
         """
 
         opened_file = False
@@ -165,16 +193,40 @@ class ImageAsync:
         self,
         image: str | BinaryIO | PathLike | tuple[str, bytes | bytearray, str],
     ) -> dict | None:
+        """Upload an image for community use.
+
+        API endpoint: POST upload/community_image
+
+        Args:
+            image (str | BinaryIO | PathLike | tuple[str, bytes  |  bytearray, str]): Image to upload.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         return await self.upload(image=image, other_endpoint="community")
 
     async def upload_user_image(
         self,
         image: str | BinaryIO | PathLike | tuple[str, bytes | bytearray, str],
     ) -> dict | None:
+        """Upload an image for use by a user.
+
+        API endpoint: POST upload/user_image
+
+        Args:
+            image (str | BinaryIO | PathLike | tuple[str, bytes  |  bytearray, str]): Image to upload.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
         return await self.upload(image=image, other_endpoint="user")
 
     async def delete(self, url: str) -> dict | None:
         """Delete an uploaded image by providing its url.
+
+        API endpoint: POST image/delete
 
         Args:
             url (str): url of the uploaded image to delete
