@@ -91,4 +91,4 @@ Here is a high level summary of where things stand with implementing the wrapper
 | Private Message |     ✅      |      ✅      |                                                |
 |      Admin      |     ✅      |      ✅      |                                                |
 |      Misc.      |     ✅      |      ✅      |                                                |
-|    Blocklist    |     ❌      |      ❌      |                                                |
+|    Blocklist    |     ✅      |      ✅      |                                                |
