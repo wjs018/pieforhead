@@ -36,7 +36,7 @@ class Blocklist:
 
         Args:
             name (str): url-safe name.
-            titles (str): Display title.
+            title (str): Display title.
             description (str | None, optional): Sidebar content in markdown. Defaults to None.
             members (str | None, optional): Newline separated list of blocked accounts. Defaults to None.
 
