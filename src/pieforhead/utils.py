@@ -1,7 +1,7 @@
 from typing import TypedDict
 
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 
 class ExtraField(TypedDict):
