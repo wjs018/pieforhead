@@ -104,6 +104,14 @@ class PieFed:
         """
         return self._client.log_out()
 
+    def forget_credentials(self) -> bool:
+        """Removes the login credentials from a client without invalidating them.
+
+        Returns:
+            bool: True if credentials were removed successfully.
+        """
+        return self._client.forget_credentials()
+
     def close(self):
         """Closes the client and any remaining connection that might be open."""
         self._client.close()
@@ -337,6 +345,14 @@ class PieFedAsync:
             bool: Returns true if logout was successful.
         """
         return await self._client.log_out()
+
+    def forget_credentials(self) -> bool:
+        """Removes the login credentials from a client without invalidating them.
+
+        Returns:
+            bool: True if credentials were removed successfully.
+        """
+        return self._client.forget_credentials()
 
     async def close(self):
         """Closes the client and any remaining connection that might be open."""

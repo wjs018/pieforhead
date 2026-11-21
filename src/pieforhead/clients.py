@@ -263,14 +263,25 @@ class PieFedClient(BaseClient):
                 return
             return False
 
-        self.jwt_token = ""
-        self.current_username_or_email = ""
-        self.current_password = ""
+        self.forget_credentials()
 
         if return_dict:
             return resp
         else:
             return True
+
+    def forget_credentials(self) -> bool:
+        """Removes the login credentials from a client without invalidating them.
+
+        Returns:
+            bool: True if credentials were removed successfully.
+        """
+        self.jwt_token = ""
+        self.current_username_or_email = ""
+        self.current_password = ""
+        self.headers.pop("Authorization", None)
+
+        return True
 
     @property
     def nodeinfo(self) -> dict | None:
@@ -529,14 +540,25 @@ class AsyncPieFedClient(BaseClient):
                 return
             return False
 
-        self.jwt_token = ""
-        self.current_username_or_email = ""
-        self.current_password = ""
+        self.forget_credentials()
 
         if return_dict:
             return resp
         else:
             return True
+
+    def forget_credentials(self) -> bool:
+        """Removes the login credentials from a client without invalidating them.
+
+        Returns:
+            bool: True if credentials were removed successfully.
+        """
+        self.jwt_token = ""
+        self.current_username_or_email = ""
+        self.current_password = ""
+        self.headers.pop("Authorization", None)
+
+        return True
 
     @property
     async def nodeinfo(self) -> dict:

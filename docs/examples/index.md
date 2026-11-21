@@ -8,6 +8,108 @@ description: Some examples of Pieforhead usage.
 
 Below are some basic working examples.
 
+## Authentication
+
+Logging into a PieFed instance and making authenticated requests is done by username/password. As of my writing this, the recently added TOTP option is not available via the API. Logging in using the `PieFed` object is fairly straightforward:
+
+=== "Synchronous"
+
+    ```python hl_lines="4"
+    from pieforhead import PieFed
+
+    piefed = PieFed("https://instance.tld")
+    piefed.login("username", "password")
+    # Do stuff here...
+    piefed.close()
+    ```
+
+=== "Asynchronous"
+
+    ```python hl_lines="6"
+    import asyncio
+    from pieforhead import PieFedAsync
+
+    async def main():
+        piefed = PieFedAsync("https://instance.tld")
+        await piefed.login("username", "password")
+        # Do stuff here...
+        await piefed.close()
+    
+    asyncio.run(main())
+    ```
+
+After a successful call to the `login` function, each subsequent request is authenticated with that user's credentials. If you wish to make unauthenticated requests after logging in, then you have two options.
+
+1. The `forget_credentials` function will simply make the client erase its saved credentials without invalidating them. This preserves logged-in sessions elsewhere that use the API, like mobile apps or alternative frontends.
+2. The `log_out` function will invalidate the API credentials for the user on the server side by making an API request to the server. This will likely invalidate every API session that the user has and has a pretty low rate-limit on the server.
+
+In general, most applications should just need the `forget_credentials` function if you need to make unauthenticated requests after logging in. If you need to make authenticated requests after calling `forget_credentials`, then you will need to call the `login` function once again.
+
+=== "Synchronous"
+
+    Here is how you can use the `forget_credentials` function:
+
+    ```python hl_lines="6"
+    from pieforhead import PieFed
+
+    piefed = PieFed("https://instance.tld")
+    piefed.login("username", "password")
+    user_info = piefed.user.get(person_id=42)  # Authenticated request
+    piefed.forget_credentials()
+    user_info = piefed.user.get(person_id=42)  # Un-authenticated request
+    piefed.close()
+    ```
+
+    Here is how you can use the `log_out` function:
+
+    ```python hl_lines="6"
+    from pieforhead import PieFed
+
+    piefed = PieFed("https://instance.tld")
+    piefed.login("username", "password")
+    user_info = piefed.user.get(person_id=42)  # Authenticated request
+    piefed.log_out()
+    user_info = piefed.user.get(person_id=42)  # Un-authenticated request
+    piefed.close()
+    ```
+    
+
+=== "Asynchronous"
+
+    Here is how you can use the `forget_credentials` function:
+
+    ```python hl_lines="6"
+    import asyncio
+    from pieforhead import PieFedAsync
+
+    async def main():
+        piefed = PieFedAsync("https://instance.tld")
+        await piefed.login("username", "password")
+        user_info = await piefed.user.get(person_id=42)  # Authenticated request
+        piefed.forget_credentials()  # Does not need to be awaited
+        user_info = await piefed.user.get(person_id=42)  # Un-authenticated request
+        await piefed.close()
+    
+    asyncio.run(main())
+    ```
+
+    Here is how you can use the `log_out` function:
+
+    ```python hl_lines="6"
+    import asyncio
+    from pieforhead import PieFedAsync
+
+    async def main():
+        piefed = PieFedAsync("https://instance.tld")
+        await piefed.login("username", "password")
+        user_info = await piefed.user.get(person_id=42)  # Authenticated request
+        await piefed.log_out()  # Needs to be awaited because it is making an API request
+        user_info = await piefed.user.get(person_id=42)  # Un-authenticated request
+        await piefed.close()
+    
+    asyncio.run(main())
+    ```
+
 ## Post/Comment Creation
 
 This example creates a basic post and then creates a comment as a reply to the post.

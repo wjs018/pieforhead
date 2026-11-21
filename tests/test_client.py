@@ -117,6 +117,30 @@ def test_login_and_logout():
         client.close()
 
 
+def test_forget_credentials():
+    def custom_handler(request):
+        return httpx.Response(200, json={})
+
+    client = make_client(custom_handler)
+
+    try:
+        # Set credentials
+        client.jwt_token = "test-token"
+        client.current_username_or_email = "test_user"
+        client.current_password = "hunter2"
+        client.headers["Authorization"] = "Bearer test-token"
+
+        # Remove credentials and verify their removal
+        assert client.forget_credentials() is True
+        assert client.is_logged_in() is False
+        assert client.jwt_token == ""
+        assert client.current_username_or_email == ""
+        assert client.current_password == ""
+        assert "Authorization" not in client.headers
+    finally:
+        client.close()
+
+
 def test_login_and_logout_return_dict():
     login_response = {"jwt": "test-token"}
     logout_response = {"success": True}
