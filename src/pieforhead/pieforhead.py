@@ -14,6 +14,7 @@ from .private_message import PrivateMessage, PrivateMessageAsync
 from .community import Community, CommunityAsync
 from .post import Post, PostAsync
 from .comment import Comment, CommentAsync
+from .blocklist import Blocklist, BlocklistAsync
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +48,7 @@ class PieFed:
         self.community = Community(client=self._client)
         self.post = Post(client=self._client)
         self.comment = Comment(client=self._client)
+        self.blocklist = Blocklist(client=self._client)
 
     def __enter__(self):
         return self
@@ -289,6 +291,7 @@ class PieFedAsync:
         self.community = CommunityAsync(client=self._client)
         self.post = PostAsync(client=self._client)
         self.comment = CommentAsync(client=self._client)
+        self.blocklist = BlocklistAsync(client=self._client)
 
     async def __aenter__(self):
         return self
