@@ -78,7 +78,7 @@ In general, most applications should just need the `forget_credentials` function
 
     Here is how you can use the `forget_credentials` function:
 
-    ```python hl_lines="6"
+    ```python hl_lines="8"
     import asyncio
     from pieforhead import PieFedAsync
 
@@ -95,7 +95,7 @@ In general, most applications should just need the `forget_credentials` function
 
     Here is how you can use the `log_out` function:
 
-    ```python hl_lines="6"
+    ```python hl_lines="8"
     import asyncio
     from pieforhead import PieFedAsync
 
