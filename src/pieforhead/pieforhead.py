@@ -56,8 +56,6 @@ class PieFed:
     def login(self, username_or_email: str, password: str) -> bool:
         """Log into an instance.
 
-        Identical to the log_in function.
-
         API endpoint: POST user/login
 
         Args:
@@ -72,7 +70,7 @@ class PieFed:
     def log_in(self, username_or_email: str, password: str) -> bool:
         """Log into an instance.
 
-        Identical to the login function.
+        Identical to the [`login`][pieforhead.PieFed.login] function.
 
         API endpoint: POST user/login
 
@@ -97,7 +95,7 @@ class PieFed:
         """Logs out of the instance and invalidates auth token.
 
         This call is usually unnecessary and the client can just be closed instead of logging out. This can potentially
-        log your account out of other devices as well.
+        log your account out of other devices as well. Identical to the [`log_out`][pieforhead.PieFed.logout] function.
 
         API endpoint: POST user/logout
 
@@ -105,6 +103,19 @@ class PieFed:
             bool: Returns true if logout was successful.
         """
         return self._client.log_out()
+
+    def logout(self) -> bool:
+        """Logs out of the instance and invalidates auth token.
+
+        This call is usually unnecessary and the client can just be closed instead of logging out. This can potentially
+        log your account out of other devices as well.
+
+        API endpoint: POST user/logout
+
+        Returns:
+            bool: Returns true if logout was successful.
+        """
+        return self.log_out()
 
     def forget_credentials(self) -> bool:
         """Removes the login credentials from a client without invalidating them.
@@ -299,8 +310,6 @@ class PieFedAsync:
     async def login(self, username_or_email: str, password: str) -> bool:
         """Log into an instance.
 
-        Identical to the log_in function.
-
         API endpoint: POST user/login
 
         Args:
@@ -315,7 +324,7 @@ class PieFedAsync:
     async def log_in(self, username_or_email: str, password: str) -> bool:
         """Log into an instance.
 
-        Identical to the login function.
+        Identical to the [`login`][pieforhead.PieFedAsync.login] function.
 
         API endpoint: POST user/login
 
@@ -340,7 +349,8 @@ class PieFedAsync:
         """Logs out of the instance and invalidates auth token.
 
         This call is usually unnecessary and the client can just be closed instead of logging out. This can potentially
-        log your account out of other devices as well.
+        log your account out of other devices as well. Identical to the [`logout`][pieforhead.PieFedAsync.logout]
+        function.
 
         API endpoint: POST user/logout
 
@@ -348,6 +358,19 @@ class PieFedAsync:
             bool: Returns true if logout was successful.
         """
         return await self._client.log_out()
+
+    async def logout(self) -> bool:
+        """Logs out of the instance and invalidates auth token.
+
+        This call is usually unnecessary and the client can just be closed instead of logging out. This can potentially
+        log your account out of other devices as well.
+
+        API endpoint: POST user/logout
+
+        Returns:
+            bool: Returns true if logout was successful.
+        """
+        return await self.log_out()
 
     def forget_credentials(self) -> bool:
         """Removes the login credentials from a client without invalidating them.
