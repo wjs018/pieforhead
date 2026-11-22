@@ -95,7 +95,7 @@ class PieFed:
         """Logs out of the instance and invalidates auth token.
 
         This call is usually unnecessary and the client can just be closed instead of logging out. This can potentially
-        log your account out of other devices as well. Identical to the [`log_out`][pieforhead.PieFed.logout] function.
+        log your account out of other devices as well. Identical to the [`logout`][pieforhead.PieFed.logout] function.
 
         API endpoint: POST user/logout
 
