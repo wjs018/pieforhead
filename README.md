@@ -12,7 +12,13 @@ In general, successful requests to the server should return a `dict` with the se
 
 By default, exceptions will be raised if something goes wrong (e.g. malformed request, network timeout, 5XX errors, etc.) to provide a trace. However, to suppress these exceptions, you can pass the `raise_exceptions=False` keyword argument when instantiating your client. This will cause a returned value of `None` instead of raising an exception. Please make sure that your code handles such a case appropriately.
 
-## Synchronous Client Usage
+## Basic Client Usage
+
+For more example usage, see the [examples page](https://wjs018.github.io/pieforhead/examples/) of the documentation.
+
+### Authentication and Closing the Client
+
+#### Synchronous Client
 
 Users familiar with network libraries like `requests` would probably be most familiar with synchronous usage. However, to make network requests a bit more efficient, this library makes use of `Client`s within `httpx` where you can take advantage of connection pooling for multiple network requests. This means that when you instantiate a `PieFed` class, it is best practice to close it when you are done with it. Here are a couple examples that show how this can be done.
 
@@ -29,7 +35,7 @@ from pieforhead import PieFed
 
 piefed = PieFed("https://instance.tld")
 piefed.login("username", "password")
-
+# Do stuff here...
 piefed.close()
 ```
 
@@ -39,11 +45,12 @@ Using a context manager (a `with` block):
 # Inside a context manager
 with PieFed("https://instance.tld") as piefed:
     piefed.login("username", "password")
+    # Do stuff here...
 
 # The connection is closed after leaving the `with` block
 ```
 
-## Asynchronous Client Usage
+#### Asynchronous Client
 
 To use this libray in an async manner, there is a separate client, `PieFedAsync` that should be used. Everything else should work exactly the same as the synchronous client, except that results will need to be `await`ed.
 
@@ -54,7 +61,7 @@ Here is a snippet that does the same three actions as outlined above for the syn
 async def main():
     piefed_async = PieFedAsync("https://instance.tld")
     await piefed_async.login("username", "password")  # Notice the await keyword
-
+    # Do stuff here...
     await piefed_async.close()
 
 # Start the event loop and execute the async function
@@ -67,6 +74,7 @@ Similar to the synchronous client, you can also use a context handler to automat
 async def main():
     async with PieFedAsync("https://instance.tld") as piefed_async:
         await piefed_async.login("username", "password")
+        # Do stuff here...
 
     # Client is closed automatically once outside the context handler
 
