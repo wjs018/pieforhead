@@ -601,6 +601,174 @@ def test_activity_alert_delete():
     asyncio.run(run_test())
 
 
+def test_list_blocks():
+    async def run_test():
+        response = {"users": []}
+        user, client = make_user(response)
+
+        # Check response
+        assert await user.list_blocks(page=2, limit=20) == response
+
+        # Check args
+        client.request.assert_awaited_once_with(
+            method="GET",
+            endpoint="user/block/list_all",
+            params={"page": 2, "limit": 20},
+        )
+
+    # Start the event loop and run the test
+    asyncio.run(run_test())
+
+
+def test_list_filters():
+    async def run_test():
+        response = {"filters": []}
+        user, client = make_user(response)
+
+        # Check response
+        assert await user.list_filters(page=2, limit=20) == response
+
+        # Check args
+        client.request.assert_awaited_once_with(
+            method="GET",
+            endpoint="user/filter/list",
+            params={"page": 2, "limit": 20},
+        )
+
+    # Start the event loop and run the test
+    asyncio.run(run_test())
+
+
+def test_get_filter():
+    async def run_test():
+        response = {"id": 42}
+        user, client = make_user(response)
+
+        # Check response
+        assert await user.get_filter(filter_id=42) == response
+
+        # Check args
+        client.request.assert_awaited_once_with(
+            method="GET",
+            endpoint="user/filter",
+            params={"filter_id": 42},
+        )
+
+    # Start the event loop and run the test
+    asyncio.run(run_test())
+
+
+def test_create_filter():
+    async def run_test():
+        response = {"id": 42}
+        user, client = make_user(response)
+
+        data = {
+            "title": "spam",
+            "filter_home": True,
+            "filter_posts": True,
+            "filter_replies": False,
+            "hide_type": "Hide",
+            "expire_after": None,
+            "keywords": "spam\nscam",
+        }
+
+        # Check response
+        assert await user.create_filter(**data) == response
+
+        # Check args
+        client.request.assert_awaited_once_with(
+            method="POST",
+            endpoint="user/filter",
+            data=data,
+        )
+
+    # Start the event loop and run the test
+    asyncio.run(run_test())
+
+
+def test_edit_filter_with_expiration():
+    async def run_test():
+        response = {"id": 42}
+        user, client = make_user(response)
+
+        # Check response
+        assert (
+            await user.edit_filter(
+                filter_id=42,
+                title="updated",
+                filter_home=False,
+                expire_after="2026-12-31",
+            )
+            == response
+        )
+
+        # Check args
+        client.request.assert_awaited_once_with(
+            method="PUT",
+            endpoint="user/filter",
+            data={
+                "filter_id": 42,
+                "title": "updated",
+                "filter_home": False,
+                "expire_after": "2026-12-31",
+            },
+        )
+
+    # Start the event loop and run the test
+    asyncio.run(run_test())
+
+
+def test_edit_filter_clear_expiration():
+    async def run_test():
+        response = {"id": 42}
+        user, client = make_user(response)
+
+        # Check response
+        assert (
+            await user.edit_filter(
+                filter_id=42,
+                title="updated",
+                filter_home=False,
+                expire_after="",
+            )
+            == response
+        )
+
+        # Check args
+        client.request.assert_awaited_once_with(
+            method="PUT",
+            endpoint="user/filter",
+            data={
+                "filter_id": 42,
+                "title": "updated",
+                "filter_home": False,
+                "expire_after": None,
+            },
+        )
+
+    # Start the event loop and run the test
+    asyncio.run(run_test())
+
+
+def test_delete_filter():
+    async def run_test():
+        user, client = make_user(True)
+
+        # Check response
+        assert await user.delete_filter(filter_id=42) is True
+
+        # Check args
+        client.request.assert_awaited_once_with(
+            method="POST",
+            endpoint="user/filter/delete",
+            data={"filter_id": 42},
+        )
+
+    # Start the event loop and run the test
+    asyncio.run(run_test())
+
+
 def test_register():
     async def run_test():
         user, _ = make_user({})

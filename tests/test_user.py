@@ -490,6 +490,146 @@ def test_activity_alert_delete():
     )
 
 
+def test_list_blocks():
+    response = {"users": []}
+    user, client = make_user(response)
+
+    # Check response
+    assert user.list_blocks(page=2, limit=20) == response
+
+    # Check args
+    client.request.assert_called_once_with(
+        method="GET",
+        endpoint="user/block/list_all",
+        params={"page": 2, "limit": 20},
+    )
+
+
+def test_list_filters():
+    response = {"filters": []}
+    user, client = make_user(response)
+
+    # Check response
+    assert user.list_filters(page=2, limit=20) == response
+
+    # Check args
+    client.request.assert_called_once_with(
+        method="GET",
+        endpoint="user/filter/list",
+        params={"page": 2, "limit": 20},
+    )
+
+
+def test_get_filter():
+    response = {"id": 42}
+    user, client = make_user(response)
+
+    # Check response
+    assert user.get_filter(filter_id=42) == response
+
+    # Check args
+    client.request.assert_called_once_with(
+        method="GET",
+        endpoint="user/filter",
+        params={"filter_id": 42},
+    )
+
+
+def test_create_filter():
+    response = {"id": 42}
+    user, client = make_user(response)
+
+    data = {
+        "title": "spam",
+        "filter_home": True,
+        "filter_posts": True,
+        "filter_replies": False,
+        "hide_type": "Hide",
+        "expire_after": None,
+        "keywords": "spam\nscam",
+    }
+
+    # Check response
+    assert user.create_filter(**data) == response
+
+    # Check args
+    client.request.assert_called_once_with(
+        method="POST",
+        endpoint="user/filter",
+        data=data,
+    )
+
+
+def test_edit_filter_with_expiration():
+    response = {"id": 42}
+    user, client = make_user(response)
+
+    # Check response
+    assert (
+        user.edit_filter(
+            filter_id=42,
+            title="updated",
+            filter_home=False,
+            expire_after="2026-12-31",
+        )
+        == response
+    )
+
+    # Check args
+    client.request.assert_called_once_with(
+        method="PUT",
+        endpoint="user/filter",
+        data={
+            "filter_id": 42,
+            "title": "updated",
+            "filter_home": False,
+            "expire_after": "2026-12-31",
+        },
+    )
+
+
+def test_edit_filter_clear_expiration():
+    response = {"id": 42}
+    user, client = make_user(response)
+
+    # Check response
+    assert (
+        user.edit_filter(
+            filter_id=42,
+            title="updated",
+            filter_home=False,
+            expire_after="",
+        )
+        == response
+    )
+
+    # Check args
+    client.request.assert_called_once_with(
+        method="PUT",
+        endpoint="user/filter",
+        data={
+            "filter_id": 42,
+            "title": "updated",
+            "filter_home": False,
+            "expire_after": None,
+        },
+    )
+
+
+def test_delete_filter():
+    user, client = make_user(True)
+
+    # Check response
+    assert user.delete_filter(filter_id=42) is True
+
+    # Check args
+    client.request.assert_called_once_with(
+        method="POST",
+        endpoint="user/filter/delete",
+        data={"filter_id": 42},
+    )
+
+
 def test_register():
     user, _ = make_user({})
 

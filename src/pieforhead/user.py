@@ -778,6 +778,172 @@ class User:
 
         return self._client.request(method="POST", endpoint="user/activity_alert/delete", data=data)
 
+    def list_blocks(self, page: int | None = None, limit: int | None = None) -> dict | None:
+        """Get list of blocks of all types for a user.
+
+        API endpoint: GET user/block/list_all
+
+        Args:
+            page (int | None, optional): Page of results to fetch. Defaults to None.
+            limit (int | None, optional): Max results per page. Defaults to None.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
+        params = {}
+
+        if page is not None:
+            params["page"] = page
+        if limit is not None:
+            params["limit"] = limit
+
+        return self._client.request(method="GET", endpoint="user/block/list_all", params=params)
+
+    def list_filters(self, page: int | None = None, limit: int | None = None) -> dict | None:
+        """Get list of keyword filters for a user.
+
+        API endpoint: GET user/filter/list
+
+        Args:
+            page (int | None, optional): Page of results to fetch. Defaults to None.
+            limit (int | None, optional): Max results per page. Defaults to None.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
+        params = {}
+
+        if page is not None:
+            params["page"] = page
+        if limit is not None:
+            params["limit"] = limit
+
+        return self._client.request(method="GET", endpoint="user/filter/list", params=params)
+
+    def get_filter(self, filter_id: int) -> dict | None:
+        """Get info for a single keyword filter.
+
+        API endpoint: GET user/filter
+
+        Args:
+            filter_id (int): Filter id to get info for.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
+        params = {"filter_id": filter_id}
+
+        return self._client.request(method="GET", endpoint="user/filter", params=params)
+
+    def create_filter(
+        self,
+        title: str,
+        filter_home: bool,
+        filter_posts: bool,
+        filter_replies: bool,
+        hide_type: str,
+        expire_after: str | None,
+        keywords: str,
+    ) -> dict | None:
+        """Create a keyword filter for a user.
+
+        API endpoint: POST user/filter
+
+        Args:
+            title (str): Display title for the filter.
+            filter_home (bool): Apply filter to posts in the home page feed.
+            filter_posts (bool): Apply filter to posts on other pages e.g. community page
+            filter_replies (bool): Apply filter to comments. Note that as of writing, this is unimplemented.
+            hide_type (str): Hide action to take. Either Hide or Transparent.
+            expire_after (str | None): ISO8601 date string or None to make permanent e.g. YYYY-MM-DD
+            keywords (str): Newline separated list of keywords
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
+        data = {
+            "title": title,
+            "filter_home": filter_home,
+            "filter_posts": filter_posts,
+            "filter_replies": filter_replies,
+            "hide_type": hide_type,
+            "expire_after": expire_after,
+            "keywords": keywords,
+        }
+
+        return self._client.request(method="POST", endpoint="user/filter", data=data)
+
+    def edit_filter(
+        self,
+        filter_id: int,
+        title: str | None = None,
+        filter_home: bool | None = None,
+        filter_posts: bool | None = None,
+        filter_replies: bool | None = None,
+        hide_type: str | None = None,
+        expire_after: str | None = None,
+        keywords: str | None = None,
+    ) -> dict | None:
+        """Edit a keyword filter.
+
+        API endpoint: PUT user/filter
+
+        Args:
+            filter_id (int): Filter id of the filter being edited.
+            title (str): Display title for the filter.
+            filter_home (bool): Apply filter to posts in the home page feed.
+            filter_posts (bool): Apply filter to posts on other pages e.g. community page
+            filter_replies (bool): Apply filter to comments. Note that as of writing, this is unimplemented.
+            hide_type (str): Hide action to take. Either Hide or Transparent.
+            expire_after (str | None): ISO8601 date string e.g. YYYY-MM-DD. Set to an empty string to remove expiration.
+            keywords (str): Newline separated list of keywords
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
+        data = {"filter_id": filter_id}
+
+        if title is not None:
+            data["title"] = title
+        if filter_home is not None:
+            data["filter_home"] = filter_home
+        if filter_posts is not None:
+            data["filter_posts"] = filter_posts
+        if filter_replies is not None:
+            data["filter_replies"] = filter_replies
+        if hide_type is not None:
+            data["hide_type"] = hide_type
+        if keywords is not None:
+            data["keywords"] = keywords
+
+        if expire_after is not None and expire_after != "":
+            data["expire_after"] = expire_after
+        elif expire_after == "":
+            data["expire_after"] = None
+
+        return self._client.request(method="PUT", endpoint="user/filter", data=data)
+
+    def delete_filter(self, filter_id: int) -> bool | None:
+        """Delete a keyword filter.
+
+        API endpoint: POST user/filter/delete
+
+        Args:
+            filter_id (int): Filter id of filter being deleted
+
+        Returns:
+            bool | None: True if a successful network request. None is returned if an exception was raised and then
+                subsequently ignored.
+        """
+        data = {"filter_id": filter_id}
+
+        return self._client.request(method="POST", endpoint="user/filter/delete", data=data)
+
 
 class UserAsync:
     """Class to hold async User endpoints."""
@@ -1536,6 +1702,172 @@ class UserAsync:
             data["community_id"] = community_id
 
         return await self._client.request(method="POST", endpoint="user/activity_alert/delete", data=data)
+
+    async def list_blocks(self, page: int | None = None, limit: int | None = None) -> dict | None:
+        """Get list of blocks of all types for a user.
+
+        API endpoint: GET user/block/list_all
+
+        Args:
+            page (int | None, optional): Page of results to fetch. Defaults to None.
+            limit (int | None, optional): Max results per page. Defaults to None.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
+        params = {}
+
+        if page is not None:
+            params["page"] = page
+        if limit is not None:
+            params["limit"] = limit
+
+        return await self._client.request(method="GET", endpoint="user/block/list_all", params=params)
+
+    async def list_filters(self, page: int | None = None, limit: int | None = None) -> dict | None:
+        """Get list of keyword filters for a user.
+
+        API endpoint: GET user/filter/list
+
+        Args:
+            page (int | None, optional): Page of results to fetch. Defaults to None.
+            limit (int | None, optional): Max results per page. Defaults to None.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
+        params = {}
+
+        if page is not None:
+            params["page"] = page
+        if limit is not None:
+            params["limit"] = limit
+
+        return await self._client.request(method="GET", endpoint="user/filter/list", params=params)
+
+    async def get_filter(self, filter_id: int) -> dict | None:
+        """Get info for a single keyword filter.
+
+        API endpoint: GET user/filter
+
+        Args:
+            filter_id (int): Filter id to get info for.
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
+        params = {"filter_id": filter_id}
+
+        return await self._client.request(method="GET", endpoint="user/filter", params=params)
+
+    async def create_filter(
+        self,
+        title: str,
+        filter_home: bool,
+        filter_posts: bool,
+        filter_replies: bool,
+        hide_type: str,
+        expire_after: str | None,
+        keywords: str,
+    ) -> dict | None:
+        """Create a keyword filter for a user.
+
+        API endpoint: POST user/filter
+
+        Args:
+            title (str): Display title for the filter.
+            filter_home (bool): Apply filter to posts in the home page feed.
+            filter_posts (bool): Apply filter to posts on other pages e.g. community page
+            filter_replies (bool): Apply filter to comments. Note that as of writing, this is unimplemented.
+            hide_type (str): Hide action to take. Either Hide or Transparent.
+            expire_after (str | None): ISO8601 date string or None to make permanent e.g. YYYY-MM-DD
+            keywords (str): Newline separated list of keywords
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
+        data = {
+            "title": title,
+            "filter_home": filter_home,
+            "filter_posts": filter_posts,
+            "filter_replies": filter_replies,
+            "hide_type": hide_type,
+            "expire_after": expire_after,
+            "keywords": keywords,
+        }
+
+        return await self._client.request(method="POST", endpoint="user/filter", data=data)
+
+    async def edit_filter(
+        self,
+        filter_id: int,
+        title: str | None = None,
+        filter_home: bool | None = None,
+        filter_posts: bool | None = None,
+        filter_replies: bool | None = None,
+        hide_type: str | None = None,
+        expire_after: str | None = None,
+        keywords: str | None = None,
+    ) -> dict | None:
+        """Edit a keyword filter.
+
+        API endpoint: PUT user/filter
+
+        Args:
+            filter_id (int): Filter id of the filter being edited.
+            title (str): Display title for the filter.
+            filter_home (bool): Apply filter to posts in the home page feed.
+            filter_posts (bool): Apply filter to posts on other pages e.g. community page
+            filter_replies (bool): Apply filter to comments. Note that as of writing, this is unimplemented.
+            hide_type (str): Hide action to take. Either Hide or Transparent.
+            expire_after (str | None): ISO8601 date string e.g. YYYY-MM-DD. Set to an empty string to remove expiration.
+            keywords (str): Newline separated list of keywords
+
+        Returns:
+            dict | None: dict containing the deserialized json returned by the server. None is returned if an exception
+                was raised and then subsequently ignored.
+        """
+        data = {"filter_id": filter_id}
+
+        if title is not None:
+            data["title"] = title
+        if filter_home is not None:
+            data["filter_home"] = filter_home
+        if filter_posts is not None:
+            data["filter_posts"] = filter_posts
+        if filter_replies is not None:
+            data["filter_replies"] = filter_replies
+        if hide_type is not None:
+            data["hide_type"] = hide_type
+        if keywords is not None:
+            data["keywords"] = keywords
+
+        if expire_after is not None and expire_after != "":
+            data["expire_after"] = expire_after
+        elif expire_after == "":
+            data["expire_after"] = None
+
+        return await self._client.request(method="PUT", endpoint="user/filter", data=data)
+
+    async def delete_filter(self, filter_id: int) -> bool | None:
+        """Delete a keyword filter.
+
+        API endpoint: POST user/filter/delete
+
+        Args:
+            filter_id (int): Filter id of filter being deleted
+
+        Returns:
+            bool | None: True if a successful network request. None is returned if an exception was raised and then
+                subsequently ignored.
+        """
+        data = {"filter_id": filter_id}
+
+        return await self._client.request(method="POST", endpoint="user/filter/delete", data=data)
 
     async def register(self):
         """Register a new account.
